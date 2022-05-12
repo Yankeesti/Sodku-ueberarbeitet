@@ -75,7 +75,7 @@ public class Feld {
 		 * @param pZahl
 		 * @return wenn pZahl moeglich true sonst false
 		 */
-		public boolean istMoeglich(byte pZahl) {
+		public boolean istMoeglich(int pZahl) {
 			return zahlMoeglich[pZahl-1];
 		}
 		
@@ -87,8 +87,8 @@ public class Feld {
 		 * 
 		 * @param pZahl
 		 */
-		public void setZahl(byte pZahl) {
-			zahl = pZahl;
+		public void setZahl(int pZahl) {
+			zahl = (byte)pZahl;
 			zahlenMoeglich = 1;
 			zahlMoeglich = new boolean[9];
 			zahlMoeglich[pZahl -1] = true;
@@ -106,18 +106,19 @@ public class Feld {
 		 * @return ein byte Array mit moeglichen Zahlen für dieses Feld
 		 */
 		public byte[] getMoegliche() {
-			
 			byte outPut[] = new byte[zahlenMoeglich];
-			byte index = 0;
+			int index = 0;
 			for(int i = 0; i<outPut.length;i++) {
-				for(;index<9;index++) {
-					if(zahlMoeglich[index]) {
-						outPut[i] = (byte)(index+1);
+				for(int p = index; p<9;p++) {
+					if(zahlMoeglich[p]) {
+						index = p+1;
+						outPut[i] = (byte)index;
 						break;
 					}
 				}
 			}
 			return outPut;
 		}
+		
 
 }

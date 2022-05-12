@@ -13,15 +13,15 @@ public class Main {
 //								"  4 7 2  ",
 //								"962  3  7",
 //								"   2     "};
-		String[] dataString = {	"6  47 1 2",
-								"7  1   9 ",
-								" 1 5 87 4",
-								" 2    8  ",
-								" 5 726  9",
-								"47       ",
-								"  7 5  8 ",
-								" 4     15",
-								"   9   2 ",
+		String[] dataString = {	"2  9     ",
+								"   6 734 ",
+								"    541  ",
+								"     1   ",
+								"  3 268  ",
+								"7 8   9  ",
+								" 214  6  ",
+								"985 62  4",
+								" 4 5   1 "
 								};
 		//Daten von dataString in feld laden
 		for(int y = 0; y<9;y++) {

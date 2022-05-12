@@ -37,17 +37,14 @@ public class Sodoku {
 			bloecke[i] = new Block(block);
 		}
 	}
-	
+	/**
+	 * loest das Sodoku
+	 */
 	public void loesen() {
-		for(int i = 0; i<5;i++) {
-			for(int t = 0; t <9; t++) {
-				horizontal[t].aktualisieren();
-				vertikal[t].aktualisieren();
-				bloecke[t].aktualisieren();
-			
-				
-			}
-		}
+		aktualisieren();
+		aktualisieren();
+		aktualisieren();
+		aktualisieren();
 	}
 	
 	public void printLinesAndBlocks() {
@@ -80,6 +77,16 @@ public class Sodoku {
 			if(y == 2 || y == 5)
 				System.out.print("\n------------");
 			System.out.println();
+		}
+	}
+	/**
+	 * aktualisiert alle Linien und Blöcke
+	 */
+	private void aktualisieren() {
+		for(int i = 0; i<9;i++) {
+			horizontal[i].aktualisieren();
+			vertikal[i].aktualisieren();
+			bloecke[i].aktualisieren();
 		}
 	}
 	
