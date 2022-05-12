@@ -78,6 +78,18 @@ public class Feld {
 		public boolean istMoeglich(int pZahl) {
 			return zahlMoeglich[pZahl-1];
 		}
+		/**
+		 * gibt true zurück wenn alle Zahlen Moeglich sind
+		 * @param pZahlen
+		 * @return
+		 */
+		public boolean istMoeglich(byte pZahlen[]) {
+			for(byte i : pZahlen) {
+				if(!istMoeglich(i))
+					return false;
+			}
+			return true;
+		}
 		
 		
 	//Getter und Setter methoden
@@ -118,6 +130,17 @@ public class Feld {
 				}
 			}
 			return outPut;
+		}
+		/**
+		 * setzt nur die zahlen welche in p enthalten sind auf moeglich
+		 * @param p
+		 */
+		public void setMoegliche(byte[] p) {
+			zahlMoeglich = new boolean[9];
+			for(byte i : p) {
+				zahlMoeglich[i-1] = true;
+			}
+			zahlenMoeglich = (byte) p.length;
 		}
 		
 

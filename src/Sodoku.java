@@ -41,11 +41,10 @@ public class Sodoku {
 	 * loest das Sodoku
 	 */
 	public void loesen() {
-		aktualisieren();
-		aktualisieren();
-		aktualisieren();
-		aktualisieren();
+		for(int i = 0; i<9; i++)
+			aktualisieren();
 	}
+	
 	
 	public void printLinesAndBlocks() {
 		System.out.println("\n\nHorizontale Linien:");
@@ -113,4 +112,6 @@ public class Sodoku {
 		
 		return outPut;
 	}
+	//methoden zum weiteren loesen des Sodokus
 }
+
