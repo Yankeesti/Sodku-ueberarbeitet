@@ -60,6 +60,17 @@ public class Feld {
 				}
 			}
 		}
+		/**
+		 * schliest alle werte aus welche in auschliesen true sind
+		 * @param auszuschliesen
+		 */
+		public void ausschliesen(byte[] auszuschliessen) {
+			for(byte i = 0; i<auszuschliessen.length ; i++) {
+				ausschliesen(auszuschliessen[i]);
+			}
+		}
+		
+		
 		
 		/**
 		 * printet das Feld wenn eindeutig die Zahl sonst ein leerzeichen
@@ -91,6 +102,58 @@ public class Feld {
 			return true;
 		}
 		
+		/**
+		 * 
+		 * @param a
+		 * @return true wenn Feld a ein möglicher drillings Partner ist
+		 */
+		public boolean isPossibleDrilling(Feld b) {
+			byte aMoegliche[] = getMoegliche(); // für den Fall das nicht beide 3 moegliche haben wird in a die kleinere Menege gespeichert
+			byte bMoegliche[] = b.getMoegliche();
+			//Wenn Beide Felder noch drei identische haben müssen diese gleich sein
+			if(zahlenMoeglich == 3 && b.getZahlenMoeglich() == 3) {
+				for(int i = 0; i<3;i++) {
+					if(aMoegliche[i] != bMoegliche[i])
+						return false;
+				}
+				return true;
+			}
+			if((zahlenMoeglich == 2 && b.getZahlenMoeglich() == 3) || (zahlenMoeglich == 3 && b.getZahlenMoeglich() == 2)) {
+				if(zahlenMoeglich == 3) { //hiernach steht die kleinere Menge in aMoegliche
+					byte temp[] = aMoegliche;
+					aMoegliche = bMoegliche;
+					bMoegliche = temp;
+				}
+				nextByte:
+				for(byte aAkt: aMoegliche) {
+					for(byte bAkt: bMoegliche) {
+						if(aAkt == bAkt)
+							continue nextByte;
+					}
+					return false; // es wurde kein passendes gegenstück zu aAkt gefunden --> aMoegliche ist nicht in bMoegliche enthalten
+				}
+				return true;
+			}
+			return false;
+		}
+		
+		/**
+		 * 
+		 * @param b
+		 * @return true wenn beide Felder die gleichen Moeglichenm haben sonst false
+		 */
+		public boolean identisch(Feld b) {
+			byte aMoeglich[] = getMoegliche();
+			byte bMoeglich[] = b.getMoegliche();
+			
+			if(aMoeglich.length == bMoeglich.length) {
+				for(int i = 0; i< aMoeglich.length;i++)
+					if(aMoeglich[i] != bMoeglich[i])
+						return false;
+				return true;
+			}
+			return false;
+		}
 		
 	//Getter und Setter methoden
 		/**
@@ -143,5 +206,8 @@ public class Feld {
 			zahlenMoeglich = (byte) p.length;
 		}
 		
+		public byte getZahlenMoeglich() {
+			return zahlenMoeglich;
+		}
 
 }

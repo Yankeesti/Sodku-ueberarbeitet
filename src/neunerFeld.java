@@ -40,6 +40,7 @@ public class neunerFeld {
 			
 			zaehleMoegliche();
 			zwilling();
+			drilling();
 			moeglicheUeberpruefen();
 			
 		}
@@ -82,6 +83,7 @@ public class neunerFeld {
 		
 		private void zwilling() {
 			//ueberpruefen ob es 2 Zahen in dem neuener Feld gibt welche nur an 2 Feldern moeglich sind
+			//naked Pair (Felder werden gesucht die 2 zahlen enthalten von dennen es nur 2 moeglichkeiten in dem Feld gibt)
 			byte zweimal[] = get2MalMoeglich();
 			for(byte a = 0; a < zweimal.length; a++) {
 				for(byte b = (byte)(a+1); b < zweimal.length; b++) {
@@ -96,6 +98,54 @@ public class neunerFeld {
 						}
 					}
 				}
+			}
+			//Paar gesucht welches 2 moegliche hat und diese 2 moeglichen identisch sind --> die zwei Zahlen können aus allen anderen der neuner Kombination gestrichen werden
+			for(int i = 0; i<9; i++) {
+				if(felder[i].getZahlenMoeglich() == 2) 
+					for(int b = i+1;b<9;b++) {
+						if(felder[i].identisch(felder[b]))//zwilling gefunden
+							ausschliesenAusser(felder[i].getMoegliche(), new Feld[] {felder[i],felder[b]});
+					}
+			}
+		}
+		
+		private void drilling() {
+			for(int feldA = 0; feldA<9; feldA++) {
+				if(felder[feldA].getZahlenMoeglich() == 2 || felder[feldA].getZahlenMoeglich() == 3)
+					for(int feldB = feldA+1; feldB<9; feldB++) {
+						if(felder[feldA].isPossibleDrilling(felder[feldB]))
+							for(int feldC = feldB+1; feldC<9; feldC++) {
+								if(felder[feldA].isPossibleDrilling(felder[feldC]) && felder[feldB].isPossibleDrilling(felder[feldC]))
+								{//Drilling gefunden
+									byte auszuschliessen[];
+									if(felder[feldA].getZahlenMoeglich() == 3)
+										auszuschliessen = felder[feldA].getMoegliche();
+									else if(felder[feldB].getZahlenMoeglich() == 3)
+										auszuschliessen = felder[feldB].getMoegliche();
+									else
+										auszuschliessen = felder[feldC].getMoegliche();
+									
+									Feld[] auslassen = {felder[feldA],felder[feldB],felder[feldC]};
+									ausschliesenAusser(auszuschliessen, auslassen);
+								}
+							}
+					}
+			}
+		}
+		
+		/**
+		 * schliest die zahlen in auszuschliessen aus allen Feldern der neuner Kombination aus
+		 * und lässt die Felder aus auslassen aus.
+		 * @param auszuschliessen
+		 * @param auslassen
+		 */
+		private void ausschliesenAusser(byte[] auszuschliessen, Feld[] auslassen) {
+			nextFeld:
+			for(Feld f:felder) {
+				for(Feld ausla: auslassen)
+					if(f == ausla)
+						continue nextFeld;
+				f.ausschliesen(auszuschliessen);
 			}
 		}
 	//Getter und Setter
