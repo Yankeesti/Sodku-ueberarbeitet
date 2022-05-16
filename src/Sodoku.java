@@ -1,3 +1,5 @@
+import java.util.List;
+
 /**
  * Spiegelt as Spielfeld mit allen Methoden zum lösen da
  * @author timheinsberg
@@ -41,11 +43,58 @@ public class Sodoku {
 	 * loest das Sodoku
 	 */
 	public void loesen() {
-		for(int i = 0; i<9; i++)
+		for(int i = 0; i<9; i++) {
 			aktualisieren();
+			blockFindLocked();
+			}
+		vertikal[4].drilling();
 	}
 	
-	
+	/**
+	 * Ueberprueft alle Blöcke ob es Zahlen gibt für die alle moegöichen Felder in einer Reihe/Spalte liegen
+	 * ist dies der Fall wird diese Zahl aus allen anderen Feldern der Reihe/Spalte gelöscht.
+	 */
+	private void blockFindLocked() {
+//		for(int bI = 0; bI<9; bI++) {
+//			Block akt = bloecke[bI];
+//			for(int i = 1 ;i<=9; i++) {
+//				Feld felder[] = akt.getFelderAufLinie(i);
+//				if(felder != null) {//alle moeglichen Felder für i liegen auf einer Zeile/Spalte
+//					int x = felder[0].getX(); // wenn nach durchlauf der for schleife nicht minus eins drin steht liegen alle Felder in der Spalte(vertikal) x
+//					for(int fI = 1; fI<felder.length;fI++)
+//						if(felder[fI].getX() != x)
+//						{
+//							x = -1;
+//							break;
+//						}
+//					if(x != -1)
+//						vertikal[x].ausschliesenAusser(new byte[] {(byte)i}, felder);
+//					else
+//						horizontal[felder[0].getY()].ausschliesenAusser(new byte[] {(byte)i}, felder);
+//				}
+//			}
+//		}
+		for(int bI = 0; bI<9; bI++) {
+			List<Feld> moeglich[] = bloecke[bI].getMoeglich();
+			for(int i = 0; i<9; i++) {
+				if(moeglich[i].size() == 2 || moeglich[i].size() == 3 ) {//wenn mehr als 3 moeglich sind ist es unmoeglich das diese in einer Reihe/Spalte sind
+					int x = moeglich[i].get(0).getX(); // wenn -1 sind die Felder nicht in einer Spalte
+					int y = moeglich[i].get(0).getY(); // wenn -1 sind die Felder nicht in einer Reihe
+					for(int mI =1; mI<moeglich[i].size();mI++) {
+						if(moeglich[i].get(mI).getX() != x)
+							x = -1;
+						if(moeglich[i].get(mI).getY() != y)
+							y= -1;
+					}
+					if(x != -1) {//Felder befinden sich in einer spalte
+						vertikal[x].ausschliesenAusser(i+1, moeglich[i]);
+					}else if(y != -1) {//Felder befinden sich in einer Reihe
+						horizontal[y].ausschliesenAusser(i+1, moeglich[i]);
+					}
+				}
+			}
+		}
+	}
 	public void printLinesAndBlocks() {
 		System.out.println("\n\nHorizontale Linien:");
 		for(int i = 0; i<9;i++) {

@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * @author timheinsberg
@@ -107,33 +110,43 @@ public class Feld {
 		 * @param a
 		 * @return true wenn Feld a ein möglicher drillings Partner ist
 		 */
-		public boolean isPossibleDrilling(Feld b) {
-			byte aMoegliche[] = getMoegliche(); // für den Fall das nicht beide 3 moegliche haben wird in a die kleinere Menege gespeichert
+		public boolean isDrilling(Feld b,Feld c) {
+//			byte aMoegliche[] = getMoegliche(); // für den Fall das nicht beide 3 moegliche haben wird in a die kleinere Menege gespeichert
+//			byte bMoegliche[] = b.getMoegliche();
+//			//Wenn Beide Felder noch drei identische haben müssen diese gleich sein
+//			if((zahlenMoeglich == 3 && b.getZahlenMoeglich() == 3)||(zahlenMoeglich == 2 && b.getZahlenMoeglich() == 2)) {
+//				for(int i = 0; i<zahlenMoeglich;i++) {
+//					if(aMoegliche[i] != bMoegliche[i])
+//						return false;
+//				}
+//				return true;
+//			}
+//			if((zahlenMoeglich == 2 && b.getZahlenMoeglich() == 3) || (zahlenMoeglich == 3 && b.getZahlenMoeglich() == 2)) {
+//				if(zahlenMoeglich == 3) { //hiernach steht die kleinere Menge in aMoegliche
+//					byte temp[] = aMoegliche;
+//					aMoegliche = bMoegliche;
+//					bMoegliche = temp;
+//				}
+//				nextByte:
+//				for(byte aAkt: aMoegliche) {
+//					for(byte bAkt: bMoegliche) {
+//						if(aAkt == bAkt)
+//							continue nextByte;
+//					}
+//					return false; // es wurde kein passendes gegenstück zu aAkt gefunden --> aMoegliche ist nicht in bMoegliche enthalten
+//				}
+//				return true;
+//			}
+//			return false;
+			byte aMoegliche[] = getMoegliche();
 			byte bMoegliche[] = b.getMoegliche();
-			//Wenn Beide Felder noch drei identische haben müssen diese gleich sein
-			if(zahlenMoeglich == 3 && b.getZahlenMoeglich() == 3) {
-				for(int i = 0; i<3;i++) {
-					if(aMoegliche[i] != bMoegliche[i])
-						return false;
-				}
+			byte cMoegliche[] = c.getMoegliche();
+			
+			byte pool[] =vereinigen(vereinigen(aMoegliche, bMoegliche), cMoegliche);//hier werden jene Zahlen abgespeichert welche in dem drilling enthalten sein dürfen(die von a,b,c moegliche mit laenge 3
+				
+			if(pool.length == 3)
 				return true;
-			}
-			if((zahlenMoeglich == 2 && b.getZahlenMoeglich() == 3) || (zahlenMoeglich == 3 && b.getZahlenMoeglich() == 2)) {
-				if(zahlenMoeglich == 3) { //hiernach steht die kleinere Menge in aMoegliche
-					byte temp[] = aMoegliche;
-					aMoegliche = bMoegliche;
-					bMoegliche = temp;
-				}
-				nextByte:
-				for(byte aAkt: aMoegliche) {
-					for(byte bAkt: bMoegliche) {
-						if(aAkt == bAkt)
-							continue nextByte;
-					}
-					return false; // es wurde kein passendes gegenstück zu aAkt gefunden --> aMoegliche ist nicht in bMoegliche enthalten
-				}
-				return true;
-			}
+			
 			return false;
 		}
 		
@@ -176,6 +189,9 @@ public class Feld {
 			return zahl;
 		}
 		
+		public int getX(){return pos[1];}
+		public int getY(){return pos[0];}
+		
 		/**
 		 * 
 		 * @return ein byte Array mit moeglichen Zahlen für dieses Feld
@@ -210,4 +226,25 @@ public class Feld {
 			return zahlenMoeglich;
 		}
 
+		
+		private byte[] vereinigen(byte[] a,byte[] b) {
+			List<Byte> elements = new ArrayList<Byte>();
+				for(byte bA : a)
+					elements.add(bA);
+				
+				enthalten:
+					for(byte bB:b) {
+						for(byte bA:a)
+						{
+							if(bB == bA)
+								continue enthalten;
+						}
+						elements.add(bB);
+					}
+				Collections.sort(elements);;
+			byte outPut[] = new byte[elements.size()];
+			for(int i = 0; i<outPut.length;i++)
+				outPut[i] = elements.get(i);
+			return outPut;
+		}
 }
