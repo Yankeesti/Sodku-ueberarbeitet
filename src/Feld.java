@@ -13,8 +13,10 @@ public class Feld {
 										// felder sind um 1 nach links verschoben(z.b. wenn zahlMoeglich[0] == true -> 1 ist moeglich).
 		private byte zahlenMoeglich;
 		private byte pos[]; // {y,x}
+		private int block;//speicher ab in welchem Block sich das Feld befindet
 		
 		Feld(byte pPos[]){
+			block = -1;
 			zahl = -1;
 			zahlMoeglich = new boolean[9];
 			for(int i = 0; i<9; i++)
@@ -111,33 +113,6 @@ public class Feld {
 		 * @return true wenn Feld a ein möglicher drillings Partner ist
 		 */
 		public boolean isDrilling(Feld b,Feld c) {
-//			byte aMoegliche[] = getMoegliche(); // für den Fall das nicht beide 3 moegliche haben wird in a die kleinere Menege gespeichert
-//			byte bMoegliche[] = b.getMoegliche();
-//			//Wenn Beide Felder noch drei identische haben müssen diese gleich sein
-//			if((zahlenMoeglich == 3 && b.getZahlenMoeglich() == 3)||(zahlenMoeglich == 2 && b.getZahlenMoeglich() == 2)) {
-//				for(int i = 0; i<zahlenMoeglich;i++) {
-//					if(aMoegliche[i] != bMoegliche[i])
-//						return false;
-//				}
-//				return true;
-//			}
-//			if((zahlenMoeglich == 2 && b.getZahlenMoeglich() == 3) || (zahlenMoeglich == 3 && b.getZahlenMoeglich() == 2)) {
-//				if(zahlenMoeglich == 3) { //hiernach steht die kleinere Menge in aMoegliche
-//					byte temp[] = aMoegliche;
-//					aMoegliche = bMoegliche;
-//					bMoegliche = temp;
-//				}
-//				nextByte:
-//				for(byte aAkt: aMoegliche) {
-//					for(byte bAkt: bMoegliche) {
-//						if(aAkt == bAkt)
-//							continue nextByte;
-//					}
-//					return false; // es wurde kein passendes gegenstück zu aAkt gefunden --> aMoegliche ist nicht in bMoegliche enthalten
-//				}
-//				return true;
-//			}
-//			return false;
 			byte aMoegliche[] = getMoegliche();
 			byte bMoegliche[] = b.getMoegliche();
 			byte cMoegliche[] = c.getMoegliche();
@@ -148,6 +123,38 @@ public class Feld {
 				return true;
 			
 			return false;
+		}
+		
+		public static void hiddenDrilling(Feld a,Feld b, Feld c, byte[] anzahlMoegliche) {
+			byte aMoegliche[] = a.getMoegliche();
+			byte bMoegliche[] = b.getMoegliche();
+			byte cMoegliche[] = c.getMoegliche();
+			
+			byte pool[] = vereinigen(vereinigen(aMoegliche, bMoegliche), cMoegliche); 
+			byte count[] = new byte[pool.length]; // hier wird gespeichert wie oft die Zahlen in dem 3er Paar vorkommen
+			
+			for(int i = 0; i<pool.length;i++) {
+				if(a.istMoeglich(pool[i]))
+					count[i] ++;
+				if(b.istMoeglich(pool[i]))
+					count[i] ++;
+				if(c.istMoeglich(pool[i]))
+					count[i] ++;
+			}
+			int abgedektCount = 0; // speichert ab wiele der Zahlen aus dem pool nur in der dreier konstelation vorzufinden sind (wenn es 3 sind ist ein hidden driling gefunden)
+			int index = 0;
+			byte abgedeckt[] = new byte[3];
+			for(int i = 0; i<pool.length;i++) {
+				if(count[i] == anzahlMoegliche[pool[i]-1]) {
+					abgedeckt[index] = pool[i];
+					index ++;
+				}
+			}
+			if(abgedektCount == 3) {
+				a.setMoegliche(abgedeckt);
+				b.setMoegliche(abgedeckt);
+				c.setMoegliche(abgedeckt);
+			}
 		}
 		
 		/**
@@ -211,23 +218,38 @@ public class Feld {
 			return outPut;
 		}
 		/**
-		 * setzt nur die zahlen welche in p enthalten sind auf moeglich
+		 * setzt nur die zahlen welche in p enthalten sind und vor aufruf moeglich sind auf moeglich
 		 * @param p
 		 */
 		public void setMoegliche(byte[] p) {
-			zahlMoeglich = new boolean[9];
-			for(byte i : p) {
-				zahlMoeglich[i-1] = true;
+			zahlenMoeglich = 0;
+			for(int i = 0; i<9; i++) {
+				if(zahlMoeglich[i] && isIn((byte)(i+1),p))
+						zahlenMoeglich ++;
+				else
+					zahlMoeglich[i] = false;
 			}
-			zahlenMoeglich = (byte) p.length;
+			
 		}
 		
 		public byte getZahlenMoeglich() {
 			return zahlenMoeglich;
 		}
-
+		/**
+		 * 
+		 * @param zahl
+		 * @param p
+		 * @return true wenn zahl in p enthalten
+		 */
+		private boolean isIn(byte zahl,byte[] p) {
+			for(byte pZahl : p) {
+				if(zahl == pZahl)
+					return true;
+			}
+			return false;
+		}
 		
-		private byte[] vereinigen(byte[] a,byte[] b) {
+		public static byte[] vereinigen(byte[] a,byte[] b) {
 			List<Byte> elements = new ArrayList<Byte>();
 				for(byte bA : a)
 					elements.add(bA);
@@ -247,4 +269,30 @@ public class Feld {
 				outPut[i] = elements.get(i);
 			return outPut;
 		}
+		
+		public void setBlock(int block) {if(this.block == -1)this.block = block;}
+		public int getBlock() {return block;}
+		
+		//Methoden zum testen wen Projekt fertig ist löschen
+		public void setPos(int y,int x) {
+			pos[0] = (byte)y;
+			pos[1] = (byte)x;
+		}
+		/**
+		 * setzt die moeglichen unabhängig davon ob sie vorher moeglich waren
+		 */
+		public void setMoeglicheHard(byte[] p) {
+			zahlenMoeglich = (byte)p.length;
+			zahlMoeglich = new boolean[9];
+			nextByte:
+			for(int i = 0; i<9;i++) {
+				for(byte pzahl: p) {
+					if(pzahl == i+1) {
+						zahlMoeglich[i] = true;
+						continue nextByte;
+					}
+				}
+			}
+		}
+		
 }

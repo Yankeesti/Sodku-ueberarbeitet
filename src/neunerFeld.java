@@ -56,6 +56,7 @@ public class neunerFeld {
 			zwilling();
 			drilling();
 			moeglicheUeberpruefen();
+			aktMoeglicheList();
 			
 		}
 		/**
@@ -95,8 +96,11 @@ public class neunerFeld {
 				p.print();
 		}
 		
+		/**
+		 * wenn ein Zwilling in dem neuner Feld vorhanden ist wird dieser ausgegeben
+		 */
 		protected void zwilling() {
-			//ueberpruefen ob es 2 Zahen in dem neuener Feld gibt welche nur an 2 Feldern moeglich sind
+			//ueberpruefen ob es 2 Zahlen in dem neuener Feld gibt welche nur an 2 Feldern moeglich sind
 			//naked Pair (Felder werden gesucht die 2 zahlen enthalten von dennen es nur 2 moeglichkeiten in dem Feld gibt)
 			byte zweimal[] = get2MalMoeglich();
 			for(byte a = 0; a < zweimal.length; a++) {
@@ -123,45 +127,31 @@ public class neunerFeld {
 			}
 		}
 		
+		/**
+		 * Wenn ein Drilling in dem neuner Feld vorhanden ist werden alle drei drillings felder ausgegen
+		 */
 		public void drilling() {
-//			for(int feldA = 0; feldA<9; feldA++) {
-//				if(felder[feldA].getZahlenMoeglich() == 2 || felder[feldA].getZahlenMoeglich() == 3)
-//					for(int feldB = feldA+1; feldB<9; feldB++) {
-//						if(felder[feldA].isPossibleDrilling(felder[feldB]))
-//							for(int feldC = feldB+1; feldC<9; feldC++) {
-//								if(felder[feldA].isPossibleDrilling(felder[feldC]) && felder[feldB].isPossibleDrilling(felder[feldC]))
-//								{//Drilling gefunden
-//									byte auszuschliessen[];
-//									if(felder[feldA].getZahlenMoeglich() == 3)
-//										auszuschliessen = felder[feldA].getMoegliche();
-//									else if(felder[feldB].getZahlenMoeglich() == 3)
-//										auszuschliessen = felder[feldB].getMoegliche();
-//									else
-//										auszuschliessen = felder[feldC].getMoegliche();
-//									
-//									Feld[] auslassen = {felder[feldA],felder[feldB],felder[feldC]};
-//									ausschliesenAusser(auszuschliessen, auslassen);
-//								}
-//							}
-//					}
-//			}
 			for(int feldA = 0; feldA<9; feldA++) {
-				if(felder[feldA].getZahlenMoeglich() == 2 || felder[feldA].getZahlenMoeglich() == 3)
+				if(felder[feldA].getZahl() == -1)
 					for(int feldB = feldA+1; feldB<9; feldB++) {
-						if(felder[feldB].getZahlenMoeglich() == 2 || felder[feldB].getZahlenMoeglich() == 3)
+						if(felder[feldB].getZahl() == -1)
 							for(int feldC = feldB+1; feldC<9; feldC++) {
+								if(felder[feldC].getZahl() == -1) {
 								if(felder[feldA].isDrilling(felder[feldB], felder[feldC]))
-								{//Drilling gefunden
-									byte auszuschliessen[];
-									if(felder[feldA].getZahlenMoeglich() == 3)
-										auszuschliessen = felder[feldA].getMoegliche();
-									else if(felder[feldB].getZahlenMoeglich() == 3)
-										auszuschliessen = felder[feldB].getMoegliche();
-									else
-										auszuschliessen = felder[feldC].getMoegliche();
-									
-									Feld[] auslassen = {felder[feldA],felder[feldB],felder[feldC]};
-									ausschliesenAusser(auszuschliessen, auslassen);
+									{//Drilling gefunden
+										byte auszuschliessen[];
+										if(felder[feldA].getZahlenMoeglich() == 3)
+											auszuschliessen = felder[feldA].getMoegliche();
+										else if(felder[feldB].getZahlenMoeglich() == 3)
+											auszuschliessen = felder[feldB].getMoegliche();
+										else
+											auszuschliessen = felder[feldC].getMoegliche();
+										
+										Feld[] auslassen = {felder[feldA],felder[feldB],felder[feldC]};
+										ausschliesenAusser(auszuschliessen, auslassen);
+									}else {//nach Hidden Drilling suchen (3 Felder enthalten alle möglichkeiten für 3 Zahlen)
+										Feld.hiddenDrilling(felder[feldA],felder[feldB],felder[feldC],anzahlMoegliche);
+									}
 								}
 							}
 					}
@@ -208,11 +198,27 @@ public class neunerFeld {
 		
 
 	//Getter und Setter
-		
 		/**
-		 * @return gibt alle moeglichen zwillings kombination an (alle kombination von zahlen welche nur 2 moeglichkeiten haben)
+		 *
+		 * @param zahl
+		 * @return alle Felder bei denen Zahl moeglich ist
 		 */
-		private byte[] get2MalMoeglich() {
+		public Feld[] getFelder(int zahl) {
+			List<Feld> moegliche = new ArrayList<Feld>();
+			for(Feld f: felder) {
+				if(f.istMoeglich(zahl))
+					moegliche.add(f);
+			}
+			Feld outPut[] = new Feld[moegliche.size()];
+			for(int i = 0;i<outPut.length;i++) {
+				outPut[i] = moegliche.get(i);
+			}
+			return outPut;
+		}
+		/**
+		 * @return gibt alle Zahle an welche nur 2 mal möglich sind
+		 */
+		public byte[] get2MalMoeglich() {
 			zaehleMoegliche();
 			List<Byte> moegliche = new ArrayList<Byte>();
 			for(int i = 0; i<9; i++) {

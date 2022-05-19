@@ -2,51 +2,33 @@
 public class TestBench {
 
 	public static void main(String[] args) {
-		neunerFeld spalte;
-		Feld a,b,c,d,e,f,g,h,i;
-		byte pos[] = {0,2};
+		Feld a[] = new Feld[2];
+		Feld b[] = new Feld[2];
 		
-		a = new Feld(pos);
-		byte moeg[] = {1,2,6};
-		a.setMoegliche(moeg);
+		a[0] = new Feld(new byte[] {3,3});
+		a[0].setBlock(4);
+		a[0].setMoeglicheHard(new byte[] {8});
 		
-		b = new Feld(pos);
-		b.setMoegliche(moeg);
+		a[1] = new Feld(new byte[] {3,6});
+		a[1].setBlock(5);
+		a[1].setMoeglicheHard(new byte[] {8});
 		
-		c = new Feld(pos);
-		byte moeg1[] = {1,7};
-		c.setMoegliche(moeg1);
+		b[0] = new Feld(new byte[] {5,3});
+		b[0].setBlock(4);
+		b[0].setMoeglicheHard(new byte[] {8});
 		
-		d = new Feld(pos);
-		byte moeg2[] = {2,5,8,9};
-		d.setMoegliche(moeg2);
+		b[1] = new Feld(new byte[] {5,7});
+		b[1].setBlock(5);
+		b[1].setMoeglicheHard(new byte[] {8});
 		
-		e = new Feld((byte)4,pos);
-		
-		f = new Feld(pos);
-		byte moeg3[] = {1,8,9};
-		f.setMoegliche(moeg3);
-		
-		g = new Feld(pos);
-		byte moeg4[] = {1,3,7};
-		g.setMoegliche(moeg4);
-		
-		h = new Feld(pos);
-		byte moeg5[] = {2,3,5};
-		h.setMoegliche(moeg5);
+		System.out.println("\n\n Versuch 1:");
+		if(Sodoku.sykscraperMoeglich(a, b) != null) {//sollte moeglich sein
+			System.out.println("moeglich");
+		}else {
+			System.out.println("nicht moeglich");
+		}
 		
 		
-		i = new Feld(pos);
-		byte moeg6[] = {1,2};
-		i.setMoegliche(moeg6);
-		
-		Feld komb[] = {a,b,c,d,e,f,g,h,i};
-		spalte = new neunerFeld(komb);
-		
-		for(int z = 0; z<5; z++)
-		spalte.aktualisieren();
-		
-		spalte.print();
 	}
 
 }

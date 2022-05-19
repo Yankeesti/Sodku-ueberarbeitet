@@ -15,15 +15,15 @@ public class Main {
 //								" 38      ",
 //								" 4   7 5 ",
 //								"    29 47"};
-		String[] dataString = {	" 16    8 ",
-								"3    165 ",
-								"  56   91",
-								"4    65 2",
-								"25  8 7 6",
-								"6375  8 9",
-								" 74  31  ",
-								"   4  9 3",
-								" 63   47 "
+		String[] dataString = {	" 74    95",
+								"1   3    ",
+								"  9  5  3",
+								"     7 1 ",
+								"8 26913 7",
+								" 1 3     ",
+								"2  4  57 ",
+								"    8   1",
+								"45    92 "
 								};
 		//Daten von dataString in feld laden
 		for(int y = 0; y<9;y++) {
@@ -40,7 +40,6 @@ public class Main {
 		spielFeld.loesen();
 		spielFeld.print();
 		System.out.println("hi");
-
 	}
 
 }

@@ -48,5 +48,26 @@ public class Block extends neunerFeld{
 		}
 		return null;
 	}
+	/**
+	 * lösche Zahl als moeglichkeit bei allen Feldern wo x = x ist
+	 * @param zahl
+	 * @param x
+	 */
+	public void ausschliessenWoX(int zahl, int x) {
+		for(Feld i: felder)
+			if(i.getX() == x)
+				i.ausschliesen((byte)zahl);
+	}
+	
+	/**
+	 * lösche Zahl als moeglichkeit bei allen Feldern wo y = y ist
+	 * @param zahl
+	 * @param y
+	 */
+	public void ausschliessenWoY(int zahl, int y) {
+		for(Feld i: felder)
+			if(i.getY() == y)
+				i.ausschliesen((byte)zahl);
+	}
 
 }
