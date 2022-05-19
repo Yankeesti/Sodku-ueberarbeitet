@@ -146,6 +146,7 @@ public class Feld {
 			byte abgedeckt[] = new byte[3];
 			for(int i = 0; i<pool.length;i++) {
 				if(count[i] == anzahlMoegliche[pool[i]-1]) {
+					abgedektCount ++;
 					abgedeckt[index] = pool[i];
 					index ++;
 				}

@@ -6,25 +6,24 @@ public class Main {
 	public static void main(String[] args) {
 		Sodoku spielFeld;
 		Feld[][] feld = new Feld[9][9];
-//		String[] dataString = {	" 8   1 69",
-//								"         ",
-//								" 164     ",
-//								"  42 6   ",
-//								"   13    ",
-//								"      8 2",
-//								" 38      ",
-//								" 4   7 5 ",
-//								"    29 47"};
-		String[] dataString = {	" 74    95",
-								"1   3    ",
-								"  9  5  3",
-								"     7 1 ",
-								"8 26913 7",
-								" 1 3     ",
-								"2  4  57 ",
-								"    8   1",
-								"45    92 "
-								};
+		String[] dataString = {	"  4 13  5",
+								"7      2 ",
+								"   6     ",
+								"  3 95  1",
+								"     8   ",
+								" 4    3  ",
+								"   4    6",
+								"  98     ",
+								" 2  69 5 "};
+//		String[] dataString = {	"95 7  3  ",
+//								"  8   5  ",
+//								" 1 56  4 ",
+//								" 4 61    ",
+//								" 2     3 ",
+//								"  7 53 1 ",
+//								" 6  25 7 ",
+//								"7 4   8  ",
+//								"2 5  7  6"};
 		//Daten von dataString in feld laden
 		for(int y = 0; y<9;y++) {
 			for(int x = 0; x<9;x++) {

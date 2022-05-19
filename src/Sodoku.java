@@ -46,20 +46,21 @@ public class Sodoku {
 	public void loesen() {
 		for(int i = 0; i<9; i++) {
 			aktualisieren();
-			blockFindLocked();
 			}
 		//print();
 		aktualisieren();
-		skyscraper();
+		linienUeberpruefung();
 		aktualisieren();
-		skyscraper();
+		linienUeberpruefung();
 		aktualisieren();
+		zweierKette();
 	}
 	
 	/**
-	 * arbeitet nach dem Prizip in diesem Video : https://www.youtube.com/watch?v=QTlmYXAMgLE
+	 * arbeitet nach dem Prizipen in diesem Video : https://www.youtube.com/watch?v=QTlmYXAMgLE
+	 * verwendet die loesungs ansaetze der xWing und der scyscraper Methoden
 	 */
-	public void skyscraper() {
+	public void linienUeberpruefung() {
 		Feld eckPunkte[] = new Feld[4];
 	//mögliche Säulen finden
 		//Vertikalen Linien nach Säulen durchsuchen
@@ -77,10 +78,12 @@ public class Sodoku {
 						Feld felderMoeglichB[] = vertikal[b].getFelder(durchZahl);
 						if(felderMoeglichA.length != 2 || felderMoeglichB.length != 2)
 							continue nextLoop;
+						xWing(felderMoeglichA, felderMoeglichB, durchZahl);
 						eckPunkte = sykscraperMoeglich(felderMoeglichA,felderMoeglichB);
 						if(eckPunkte != null) {//Skyscraper gefunden
 							bloecke[eckPunkte[2].getBlock()].ausschliessenWoY(durchZahl,eckPunkte[3].getY());
 							bloecke[eckPunkte[3].getBlock()].ausschliessenWoY(durchZahl,eckPunkte[2].getY());
+							aktualisieren();
 							continue nextLoop;
 						}
 					}
@@ -103,10 +106,12 @@ public class Sodoku {
 							Feld felderMoeglichB[] = horizontal[b].getFelder(durchZahl);
 							if(felderMoeglichA.length != 2 || felderMoeglichB.length != 2)
 								continue nextLoop;
+							xWing(felderMoeglichA, felderMoeglichB, durchZahl);
 							eckPunkte = sykscraperMoeglich(felderMoeglichA,felderMoeglichB);
 							if(eckPunkte != null) {//Skyscraper gefunden
 								bloecke[eckPunkte[2].getBlock()].ausschliessenWoX(durchZahl,eckPunkte[3].getX());
 								bloecke[eckPunkte[3].getBlock()].ausschliessenWoX(durchZahl,eckPunkte[2].getX());
+								aktualisieren();
 								continue nextLoop;
 							}
 						}
@@ -121,6 +126,80 @@ public class Sodoku {
 	//Ausschliesen
 	}
 	
+	/**
+	 * ueberpruft ob die Felder aus a zusammen mit den FEldern aus b einen X Wing bilden, 
+	 * wenn ja schliest die Methode daruas rueckschluesse und gibt true zurueck.
+	 * sollte kein xWing vorliegen gibt die Methode False zurück.
+	 * @return
+	 */
+	private void xWing(Feld a[], Feld b[], int zahl) {
+		if(a[0].getX() == b[0].getX() && a[1].getX() == b[1].getX()) {//Xwing gefunden --> auf allen beiden vetikalen linien ( a[0] und a[1]) kann zahl geloescht werden
+			vertikal[a[0].getX()].ausschliesenAusser(zahl, new Feld[] {a[0],b[0]});
+			vertikal[a[1].getX()].ausschliesenAusser(zahl, new Feld[] {a[1],b[1]});
+			aktualisieren();
+		}else if(a[0].getY() == b[0].getY() && a[1].getY() == b[1].getY()) {//Xwing gefunden --> auf allen beiden horizontalen linien ( a[0] und a[1])kann zahl geloescht werden
+			horizontal[a[0].getY()].ausschliesenAusser(zahl, new Feld[] {a[0],b[0]});
+			horizontal[a[1].getY()].ausschliesenAusser(zahl, new Feld[] {a[1],b[1]});
+			aktualisieren();
+		}
+	}
+	
+	/**
+	 * überprüft das Spiel feld nach der 2-er Kette 
+	 * erklärung: https://www.youtube.com/watch?v=QTlmYXAMgLE
+	 */
+	private void zweierKette() {
+		for(int iV = 0; iV<9; iV++) { // vertikale durchlaufen
+			byte[] aZweiMoeglich = vertikal[iV].get2MalMoeglich();
+			if(aZweiMoeglich != null) {
+				for(int iH = 0; iH <9; iH++) {
+					byte[] bZweiMoeglich = horizontal[iH].get2MalMoeglich();
+					byte[] durchschnitt = MengenOperationen.duchschnitt(aZweiMoeglich, bZweiMoeglich);
+					if(durchschnitt != null) {
+						for(byte durchZahl : durchschnitt) {
+							Feld felderMoeglichA[] = vertikal[iV].getFelder(durchZahl);
+							Feld felderMoeglichB[] = horizontal[iH].getFelder(durchZahl);
+							if(felderMoeglichA.length != 2 || felderMoeglichB.length != 2)
+								continue;
+							Feld nichtVerbunden[] = verbunden(felderMoeglichA, felderMoeglichB);
+							if(nichtVerbunden != null) {
+								spielfeld[nichtVerbunden[0].getY()][nichtVerbunden[1].getX()].ausschliesen(durchZahl);
+								aktualisieren();
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	/**
+	 * hilfsmethode für zweier Kette
+	 * @param a
+	 * @param b
+	 * @return wenn alle 4 Felder unterschiedlich sind und eine Verbindung(gleiche Block bei einem Feld aus a mit einem Feld aus b) werden die Felderwieder gegeben welche keine verbindung haben, sonst null
+	 */
+	private Feld[] verbunden(Feld[] a, Feld[] b) {
+		if(a[0] == b[0] || a[0] == b[1] || a[1] == b[0] || a[1] == b[1] || a[0].getBlock() == a[1].getBlock() || b[0].getBlock() == b[1].getBlock() )
+			return null;
+		 for(int iA = 0; iA <2 ; iA ++) {
+			 for(int iB = 0; iB<2;iB++)
+				 if(a[iA].getBlock() == b[iB].getBlock()) {//zweier kette gefunden
+					 Feld outPut[] = new Feld[2];
+					 if(iA == 0)
+						 outPut[0] = a[1];
+					 else
+						 outPut[0] = a[0];
+					 
+					 if(iB == 0)
+						 outPut[1] = b[1];
+					 else
+						 outPut[1] = b[0];
+					 return outPut;
+				 }
+		 }
+		 return null;
+		
+	}
 	/**
 	 * darf nur aufgeruden werden wen vorher geprueft wurde ob alle 4 Felder eine Zahl gemeinsam moeglich haben
 	 * @param a
@@ -254,11 +333,13 @@ public class Sodoku {
 	 * aktualisiert alle Linien und Blöcke
 	 */
 	private void aktualisieren() {
+		blockFindLocked();
 		for(int i = 0; i<9;i++) {
 			horizontal[i].aktualisieren();
 			vertikal[i].aktualisieren();
 			bloecke[i].aktualisieren();
 		}
+		blockFindLocked();
 	}
 	
 	/**

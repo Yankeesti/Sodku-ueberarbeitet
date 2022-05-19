@@ -183,6 +183,17 @@ public class neunerFeld {
 					
 				}
 		}
+		
+		public void ausschliesenAusser(int zahl,Feld[] auslassen) {
+			nextFeld:
+				for(Feld f: felder) {
+					for(Feld ausla: auslassen)
+						if(f == ausla)
+							continue nextFeld;
+					f.ausschliesen((byte) zahl);
+					
+				}
+		}
 		/**
 		 *aktualisiert die Liste welche alle möglichen Felder für jede Zahl enthält
 		 */
