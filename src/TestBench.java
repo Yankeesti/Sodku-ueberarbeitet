@@ -2,33 +2,18 @@
 public class TestBench {
 
 	public static void main(String[] args) {
-		Feld a[] = new Feld[2];
-		Feld b[] = new Feld[2];
 		
-		a[0] = new Feld(new byte[] {3,3});
-		a[0].setBlock(4);
-		a[0].setMoeglicheHard(new byte[] {8});
+		Feld a = new Feld(new byte[] {0,2});
+		Feld b = new Feld(new byte[] {4,2});
+		Feld c = new Feld(new byte[] {1,2});
+		Feld d = new Feld(new byte[] {7,2});
 		
-		a[1] = new Feld(new byte[] {3,6});
-		a[1].setBlock(5);
-		a[1].setMoeglicheHard(new byte[] {8});
+		Feld e = new Feld(new byte[] {3,2});
 		
-		b[0] = new Feld(new byte[] {5,3});
-		b[0].setBlock(4);
-		b[0].setMoeglicheHard(new byte[] {8});
+		Vormerkung aV = new Vormerkung(0, new Feld[] {a,b}, new Feld[] {c,d});
+		Vormerkung bV = new Vormerkung(0, new Feld[] {a,b}, new Feld[] {c,d});
 		
-		b[1] = new Feld(new byte[] {5,7});
-		b[1].setBlock(5);
-		b[1].setMoeglicheHard(new byte[] {8});
-		
-		System.out.println("\n\n Versuch 1:");
-		if(Sodoku.sykscraperMoeglich(a, b) != null) {//sollte moeglich sein
-			System.out.println("moeglich");
-		}else {
-			System.out.println("nicht moeglich");
-		}
-		
-		
+		System.out.println(aV.isSame(bV));
 	}
 
 }

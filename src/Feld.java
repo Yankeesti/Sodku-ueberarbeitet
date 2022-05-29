@@ -14,6 +14,7 @@ public class Feld {
 		private byte zahlenMoeglich;
 		private byte pos[]; // {y,x}
 		private int block;//speicher ab in welchem Block sich das Feld befindet
+		private List<Vormerkung> vormerkung; //Liste enthält ein 2 dimensionale Feld Arrays
 		
 		Feld(byte pPos[]){
 			block = -1;
@@ -294,6 +295,10 @@ public class Feld {
 					}
 				}
 			}
+		}
+		
+		public String getPosString() {
+			return "("+pos[1]+"|"+pos[0]+")";
 		}
 		
 }

@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -10,6 +11,7 @@ public class Sodoku {
 	
 	private Linie horizontal[],vertikal[]; //Linien sind von oben nach unten und von rechts nach links durchnummerriert (siehe Zeichung aufteilung.jpeg)
 	private Block bloecke[];				//Blöcke sind von Links nach recht und oben nach unten durch nummerriert (siehe Zeichung aufteilung.jpeg )
+	private List<Vormerkung> vormerkungen;
 	Sodoku(Feld[][] pSpielfeld){
 		spielfeld = pSpielfeld;
 		
@@ -39,21 +41,20 @@ public class Sodoku {
 				}
 			bloecke[i] = new Block(block);
 		}
+		vormerkungen = new ArrayList<Vormerkung>();
 	}
 	/**
 	 * loest das Sodoku
 	 */
 	public void loesen() {
 		for(int i = 0; i<9; i++) {
-			aktualisieren();
-			}
-		//print();
 		aktualisieren();
 		linienUeberpruefung();
 		aktualisieren();
-		linienUeberpruefung();
-		aktualisieren();
-		zweierKette();
+		zweierKette();}
+		for(int i = 0; i<vormerkungen.size();i++) {
+			vormerkungen.get(i).print();
+		}
 	}
 	
 	/**
@@ -149,10 +150,12 @@ public class Sodoku {
 	 * erklärung: https://www.youtube.com/watch?v=QTlmYXAMgLE
 	 */
 	private void zweierKette() {
-		for(int iV = 0; iV<9; iV++) { // vertikale durchlaufen
+		//2 String Kite
+		for(int iV = 0; iV<9; iV++) {
 			byte[] aZweiMoeglich = vertikal[iV].get2MalMoeglich();
 			if(aZweiMoeglich != null) {
 				for(int iH = 0; iH <9; iH++) {
+					//Anfang 2 String Kite
 					byte[] bZweiMoeglich = horizontal[iH].get2MalMoeglich();
 					byte[] durchschnitt = MengenOperationen.duchschnitt(aZweiMoeglich, bZweiMoeglich);
 					if(durchschnitt != null) {
@@ -161,9 +164,50 @@ public class Sodoku {
 							Feld felderMoeglichB[] = horizontal[iH].getFelder(durchZahl);
 							if(felderMoeglichA.length != 2 || felderMoeglichB.length != 2)
 								continue;
-							Feld nichtVerbunden[] = verbunden(felderMoeglichA, felderMoeglichB);
+							Feld nichtVerbunden[] = verbunden2String(durchZahl,felderMoeglichA, felderMoeglichB);
+							if(nichtVerbunden != null) {
+								// 2er String gefunden
+								//schlusfolgerung aus 2er String kette ziehen
+								spielfeld[nichtVerbunden[0].getY()][nichtVerbunden[1].getX()].ausschliesen(durchZahl);
+								aktualisieren();
+							}
+						}
+					}
+				}
+			}
+		}
+		//Turbot Fish
+		
+		for(int iL = 0; iL <9; iL++) {
+			byte[] vZweiMoeglich = vertikal[iL].get2MalMoeglich();
+			byte[] hZweiMoeglich = horizontal[iL].get2MalMoeglich();
+			if(vZweiMoeglich != null && hZweiMoeglich != null) {
+				for(int iB = 0; iB<9; iB++) {
+					byte[] bZweiMoeglich = bloecke[iB].get2MalMoeglich();
+					byte durchschnittV[] = MengenOperationen.duchschnitt(vZweiMoeglich, bZweiMoeglich);
+					byte durchschnittH[] = MengenOperationen.duchschnitt(hZweiMoeglich, bZweiMoeglich);
+					if(durchschnittV != null) {
+						for(byte durchZahl : durchschnittV) {
+							Feld felderMoeglichV[] = vertikal[iL].getFelder(durchZahl);
+							Feld felderMoeglichB[] = bloecke[iB].getFelder(durchZahl);
+							if(felderMoeglichV.length != 2 || felderMoeglichB.length != 2)
+								continue;
+							Feld nichtVerbunden[] = verbundenTurbot(durchZahl,felderMoeglichV, felderMoeglichB);
 							if(nichtVerbunden != null) {
 								spielfeld[nichtVerbunden[0].getY()][nichtVerbunden[1].getX()].ausschliesen(durchZahl);
+								aktualisieren();
+							}
+						}
+					}
+					if(durchschnittH != null) {
+						for(byte durchZahl : durchschnittH) {
+							Feld felderMoeglichH[] = horizontal[iL].getFelder(durchZahl);
+							Feld felderMoeglichB[] = bloecke[iB].getFelder(durchZahl);
+							if(felderMoeglichH.length != 2 || felderMoeglichB.length != 2)
+								continue;
+							Feld nichtVerbunden[] = verbundenTurbot(durchZahl,felderMoeglichH, felderMoeglichB);
+							if(nichtVerbunden != null) {
+								spielfeld[nichtVerbunden[1].getY()][nichtVerbunden[0].getX()].ausschliesen(durchZahl);
 								aktualisieren();
 							}
 						}
@@ -178,14 +222,20 @@ public class Sodoku {
 	 * @param b
 	 * @return wenn alle 4 Felder unterschiedlich sind und eine Verbindung(gleiche Block bei einem Feld aus a mit einem Feld aus b) werden die Felderwieder gegeben welche keine verbindung haben, sonst null
 	 */
-	private Feld[] verbunden(Feld[] a, Feld[] b) {
+	private Feld[] verbunden2String(int zahl,Feld[] a, Feld[] b) {
 		if(a[0] == b[0] || a[0] == b[1] || a[1] == b[0] || a[1] == b[1] || a[0].getBlock() == a[1].getBlock() || b[0].getBlock() == b[1].getBlock() )
 			return null;
 		 for(int iA = 0; iA <2 ; iA ++) {
 			 for(int iB = 0; iB<2;iB++)
 				 if(a[iA].getBlock() == b[iB].getBlock()) {//zweier kette gefunden
+					 Feld[] feldPaar1 = new Feld[2]; //in FeldPaar eins wird das feld aus a gespeichert welches die verbindung zwischen a und b herstellt(gleicher block) und sein gegemstück
+					 Feld[] feldPaar2 = new Feld[2];
+					 feldPaar1[0] = a[iA];
+					 feldPaar2[1] = b[iB];
+					
+					 
 					 Feld outPut[] = new Feld[2];
-					 if(iA == 0)
+					 if(iA == 0) 
 						 outPut[0] = a[1];
 					 else
 						 outPut[0] = a[0];
@@ -194,11 +244,99 @@ public class Sodoku {
 						 outPut[1] = b[1];
 					 else
 						 outPut[1] = b[0];
+					 feldPaar1[1] = outPut[1];
+					 feldPaar2[0] = outPut[0];
+					 Vormerkung temp = new Vormerkung(zahl, feldPaar1, feldPaar2);
+					 
+					 if(!vormerkungEnthalten(temp))
+						 vormerkungen.add(temp);
 					 return outPut;
 				 }
 		 }
 		 return null;
 		
+	}
+	/**
+	 * 
+	 * @param b
+	 * @return true wenn b schon in vormerkungene enthalten ist
+	 */
+	private boolean vormerkungEnthalten(Vormerkung b) {
+		for(int i = 0; i<vormerkungen.size();i++) {
+			if(vormerkungen.get(i).isSame(b))
+				return true;
+		}
+		return false;
+	}
+	/**
+	 * 
+	 * @param 2 Felder der Linie
+	 * @param 2 Felder des Blocks
+	 * @return Wenn eine Verbindung zwischen Linie und Block besteht werden die 2 Felder wieder gegeben welche keine Verbindung haben, sonst null
+	 */
+	private Feld[] verbundenTurbot(int zahl,Feld []a ,Feld[] b) {
+		if(a[0] == b[0] || a[0] == b[1] || a[1] == b[0] || a[1] == b[1])
+			return null;
+		Feld outPut[] = new Feld[2];
+		boolean vertikaleLinie = a[0].getX() == a[1].getX();
+		for(int iL = 0; iL<2; iL ++) {
+			for(int iB = 0; iB<2;iB++) {
+				if(vertikaleLinie) {
+					if(a[iL].getY() == b[iB].getY()) {
+						Feld[] feldPaar1 = new Feld[2]; //in feldPaar1[0] wird das Feld aus der Linie abgespeichert welche die selbe y koordinate hat wie ein Feld aus einem Block
+						Feld[] feldPaar2 = new Feld[2];
+						feldPaar1[0] = a[iL];
+						feldPaar2[1] = b[iB];
+						if(iL == 0)
+							outPut[0] = a[1];
+						else
+							outPut[0] = a[0];
+						if(iB == 0)
+							outPut[1] = b[1];
+						else
+							outPut[1] = b[0];
+						//Verhindern das die beiden outPut punkte verbunden sind
+						if(outPut[0].getY() == outPut[1].getY())
+							return null;
+						
+						feldPaar1[1] = outPut[1];
+						feldPaar2[0] = outPut[0];
+						Vormerkung temp = new Vormerkung(zahl, feldPaar1, feldPaar2);
+						if(!vormerkungEnthalten(temp))
+							vormerkungen.add(temp);
+						return outPut;
+									
+					}
+					
+				}else {
+					if(a[iL].getX() == b[iB].getX()) {
+						Feld[] feldPaar1 = new Feld[2]; //in feldPaar1[0] wird das Feld aus der Linie abgespeichert welche die selbe y koordinate hat wie ein Feld aus einem Block
+						Feld[] feldPaar2 = new Feld[2];
+						feldPaar1[0] = a[iL];
+						feldPaar2[1] = b[iB];
+						if(iL == 0)
+							outPut[0] = a[1];
+						else
+							outPut[0] = a[0];
+						if(iB == 0)
+							outPut[1] = b[1];
+						else
+							outPut[1] = b[0];
+						//Verhindern das die beiden outPut punkte verbunden sind
+						if(outPut[0].getX() == outPut[1].getX())
+							return null;
+						feldPaar1[1] = outPut[1];
+						feldPaar2[0] = outPut[0];
+						Vormerkung temp = new Vormerkung(zahl, feldPaar1, feldPaar2);
+						if(!vormerkungEnthalten(temp))
+							vormerkungen.add(temp);
+						return outPut;
+									
+					}
+				}
+			}
+		}
+		return null;
 	}
 	/**
 	 * darf nur aufgeruden werden wen vorher geprueft wurde ob alle 4 Felder eine Zahl gemeinsam moeglich haben
@@ -338,6 +476,13 @@ public class Sodoku {
 			horizontal[i].aktualisieren();
 			vertikal[i].aktualisieren();
 			bloecke[i].aktualisieren();
+		}
+		if(!vormerkungen.isEmpty()) {
+			for(int i = 0; i< vormerkungen.size();i++) {
+			if(vormerkungen.get(i).aktualisieren()) {
+				vormerkungen.remove(i);
+			}
+			}
 		}
 		blockFindLocked();
 	}
