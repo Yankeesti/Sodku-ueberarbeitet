@@ -13,55 +13,177 @@ public class Sodoku {
 	private Block bloecke[];				//Blöcke sind von Links nach recht und oben nach unten durch nummerriert (siehe Zeichung aufteilung.jpeg )
 	private List<Vormerkung> vormerkungen;
 	Sodoku(Feld[][] pSpielfeld){
-		spielfeld = pSpielfeld;
-		
 		horizontal = new Linie[9];
 		vertikal = new Linie[9];
 		bloecke = new Block[9];
-		//linien initialisieren
-		for(int i = 0; i<9;i++) {
-			horizontal[i] = new Linie(spielfeld[i]);
-			//Vertikale Linien initialisieren
-			Feld vLinie[] = new Feld[9];
-			for(int y = 0; y<9;y++){
-				vLinie[y] = spielfeld[y][i];
-			}
-			vertikal[i] = new Linie(vLinie);
-			//Bloecke initialisieren
-		
-			Feld[] block = new Feld[9];
-				byte[] obenLinks = getEcke((byte)i);
-				byte index =0;
-				for(int reihe = obenLinks[0];reihe < obenLinks[0]+3;reihe++) {
-					for(int zeile = obenLinks[1]; zeile < obenLinks[1]+3;zeile++) {
-						block[index] = spielfeld[reihe][zeile];
-						spielfeld[reihe][zeile].setBlock(i);
-						index++;
-					}
-				}
-			bloecke[i] = new Block(block);
-		}
+		initialisieren(pSpielfeld);
 		vormerkungen = new ArrayList<Vormerkung>();
 	}
+	
+	private void initialisieren(Feld[][] spielfeld) {
+		this.spielfeld = spielfeld;
+		//linien initialisieren
+				for(int i = 0; i<9;i++) {
+					horizontal[i] = new Linie(spielfeld[i]);
+					//Vertikale Linien initialisieren
+					Feld vLinie[] = new Feld[9];
+					for(int y = 0; y<9;y++){
+						vLinie[y] = spielfeld[y][i];
+					}
+					vertikal[i] = new Linie(vLinie);
+					//Bloecke initialisieren
+				
+					Feld[] block = new Feld[9];
+						byte[] obenLinks = getEcke((byte)i);
+						byte index =0;
+						for(int reihe = obenLinks[0];reihe < obenLinks[0]+3;reihe++) {
+							for(int zeile = obenLinks[1]; zeile < obenLinks[1]+3;zeile++) {
+								block[index] = spielfeld[reihe][zeile];
+								spielfeld[reihe][zeile].setBlock(i);
+								index++;
+							}
+						}
+					bloecke[i] = new Block(block);
+				}
+	}
+//	/**
+//	 * loest das Sodoku
+//	 * @retu
+//	 */
+//	public void loesen() {
+//		boolean veraenderung = false; // speichert ab ob sich auf dem spielfeld etwas veraendert hat
+//		for(int i = 0; i<1000; i++){
+//			veraenderung = false;
+//			if(aktualisieren()) veraenderung = true;
+//			if(linienUeberpruefung()) veraenderung = true;
+//			if(aktualisieren()) veraenderung = true;
+//			if(zweierKette()) veraenderung = true;
+//			if(veraenderung == false)
+//				//Feld bei dem am wenigsten zahlen moeglich sind eine Zahl raten 
+//				break;
+//		}
+//		
+//	}
+	
 	/**
 	 * loest das Sodoku
+	 * gibt die Methode false wieder heißt dies das eine Zahl falsch geraten wurde
+	 * @return true wenn das sodoku geloest wurd und false wenn ein Fehler Sodoku vorliegt
 	 */
-	public void loesen() {
-		for(int i = 0; i<9; i++) {
-		aktualisieren();
-		linienUeberpruefung();
-		aktualisieren();
-		zweierKette();}
-		for(int i = 0; i<vormerkungen.size();i++) {
-			vormerkungen.get(i).print();
+	public boolean loesen() {
+		boolean veraenderung = false; // speichert ab ob sich auf dem spielfeld etwas veraendert hat
+		if(aktualisieren()) veraenderung = true;
+		if(linienUeberpruefung()) veraenderung = true;
+		if(aktualisieren()) veraenderung = true;
+		if(zweierKette()) veraenderung = true;
+		
+		if(!richtig()) return false; // bei einer Raten Methode wurde falsch geraten
+		
+		if(veraenderung) return loesen();
+		else { //entweder wurde das sodoku gelöst oder es muss geraten werden
+			if(fertig())return true;
+			return raten();
 		}
+	}
+	/**
+	 * speichert das alte spielfeld ab und raet bei einem Feld bei dem die wenigsten Zahlen moeglich sind eine Zahl und loest das Sodoku mit dem
+	 * geratenen Feld weiter, sollte das Sodoku so Falsch sein kehrt die Methode zu dem alten spielFeld zurück und wählt die nächste Zahl bei dem Feld
+	 * ist das Sodoku bei der letzten Zahl immernoch Falsch gibt die Methode False zurück, dies heist das eine geratene Zahl davor falsch war
+	 * @return true wenn das Sodoku geloest wurde sonst false
+	 */
+	
+	public boolean raten() {
+		//altes spielfeld abspeichern
+		Feld[][] altesFeld = copy(spielfeld);
+		
+		Feld kleinsteAnzahlMoegliche = spielfeld[0][0];
+		int probiert = 0; //speichert ab welche moegliche zahl des feldes als letztes probiert wurde
+		int anzahl = spielfeld[0][0].getZahlenMoeglich();
+		if(spielfeld[0][0].getZahl() != -1)
+			anzahl = 10;
+		found:
+		for(int y = 0; y<9;y++) {
+			for(int x = 0; x<9;x++) {
+				if(spielfeld[y][x].getZahlenMoeglich() == 2) {
+					kleinsteAnzahlMoegliche = spielfeld[y][x];
+					anzahl = spielfeld[y][x].getZahlenMoeglich();
+					break found;		
+				}
+				else if(spielfeld[y][x].getZahlenMoeglich() < anzahl){
+					kleinsteAnzahlMoegliche = spielfeld[y][x];
+					anzahl = spielfeld[y][x].getZahlenMoeglich();
+				}
+			}
+		}
+		int pos[] = {kleinsteAnzahlMoegliche.getY(),kleinsteAnzahlMoegliche.getX()};// spichert die Position von dem zu ratenden Feld ab
+		byte moegliche[] = kleinsteAnzahlMoegliche.getMoegliche();
+		// Feld mit der Kleinsten anzahl moeglichen steht nun in kleinsteAnzahlMoegliche
+		while(true) {
+			this.spielfeld = copy(altesFeld);
+			kleinsteAnzahlMoegliche = this.spielfeld[pos[0]][pos[1]];
+			kleinsteAnzahlMoegliche.setZahl(moegliche[probiert]);
+			initialisieren(this.spielfeld);
+			boolean boolGeloest = loesen();
+			if(boolGeloest)
+				return true; // das sodoku wurde geloest
+			else
+				if(probiert >= anzahl-1) {
+					this.spielfeld = altesFeld;
+					return false; // bei einem raten vorher muss etwas schiefgelaufen sein
+					}
+			probiert ++;
+		}
+		
+	}
+	
+	private Feld[][] copy(Feld[][] p){
+		Feld outPut[][] = new Feld[p.length][];
+		
+		for(int i = 0; i<p.length;i++) {
+			outPut[i] = new Feld[p[i].length];
+			for(int i2 = 0;i2< outPut[i].length ;i2++) {
+				outPut[i][i2] = p[i][i2].copy();
+			}
+		}
+		
+		return outPut;
+	}
+	
+	/**
+	 * 
+	 * @return true wenn das Sodoku noch den Regeln entsricht, sonnst false
+	 */
+	private boolean richtig() {
+		for(int i = 0; i<9; i++) {
+			//alle linien und blöcke auf richtigkeit überprüfen
+			if(!(horizontal[i].richtig() && vertikal[i].richtig() && bloecke[i].richtig())) { //ein neuner Feld ist nicht richtig
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	/**
+	 * 
+	 * @return true wenn das sodoku gelöst wurde und false wenn nicht
+	 */
+	private boolean fertig() {
+		for(int i = 0; i<9; i++) {
+			//alle linien und blöcke auf richtigkeit überprüfen
+			if(!(horizontal[i].fertig() && vertikal[i].fertig() && bloecke[i].fertig())) { //ein neuner Feld ist nicht richtig
+				return false;
+			}
+		}
+		return richtig();
 	}
 	
 	/**
 	 * arbeitet nach dem Prizipen in diesem Video : https://www.youtube.com/watch?v=QTlmYXAMgLE
 	 * verwendet die loesungs ansaetze der xWing und der scyscraper Methoden
+	 * @return true wenn der aufruf etwas bei den Feldern des Feldes veraendert hat sonst false
 	 */
-	public void linienUeberpruefung() {
+	public boolean linienUeberpruefung() {
+		boolean outPut = false;
 		Feld eckPunkte[] = new Feld[4];
 	//mögliche Säulen finden
 		//Vertikalen Linien nach Säulen durchsuchen
@@ -79,12 +201,12 @@ public class Sodoku {
 						Feld felderMoeglichB[] = vertikal[b].getFelder(durchZahl);
 						if(felderMoeglichA.length != 2 || felderMoeglichB.length != 2)
 							continue nextLoop;
-						xWing(felderMoeglichA, felderMoeglichB, durchZahl);
+						if(xWing(felderMoeglichA, felderMoeglichB, durchZahl)) outPut = true;
 						eckPunkte = sykscraperMoeglich(felderMoeglichA,felderMoeglichB);
 						if(eckPunkte != null) {//Skyscraper gefunden
-							bloecke[eckPunkte[2].getBlock()].ausschliessenWoY(durchZahl,eckPunkte[3].getY());
-							bloecke[eckPunkte[3].getBlock()].ausschliessenWoY(durchZahl,eckPunkte[2].getY());
-							aktualisieren();
+							if(bloecke[eckPunkte[2].getBlock()].ausschliessenWoY(durchZahl,eckPunkte[3].getY())) outPut = true;
+							if(bloecke[eckPunkte[3].getBlock()].ausschliessenWoY(durchZahl,eckPunkte[2].getY())) outPut = true;
+							if(aktualisieren()) outPut = true;
 							continue nextLoop;
 						}
 					}
@@ -107,12 +229,12 @@ public class Sodoku {
 							Feld felderMoeglichB[] = horizontal[b].getFelder(durchZahl);
 							if(felderMoeglichA.length != 2 || felderMoeglichB.length != 2)
 								continue nextLoop;
-							xWing(felderMoeglichA, felderMoeglichB, durchZahl);
+							if(xWing(felderMoeglichA, felderMoeglichB, durchZahl)) outPut = true;
 							eckPunkte = sykscraperMoeglich(felderMoeglichA,felderMoeglichB);
 							if(eckPunkte != null) {//Skyscraper gefunden
-								bloecke[eckPunkte[2].getBlock()].ausschliessenWoX(durchZahl,eckPunkte[3].getX());
-								bloecke[eckPunkte[3].getBlock()].ausschliessenWoX(durchZahl,eckPunkte[2].getX());
-								aktualisieren();
+								if(bloecke[eckPunkte[2].getBlock()].ausschliessenWoX(durchZahl,eckPunkte[3].getX())) outPut = true;
+								if(bloecke[eckPunkte[3].getBlock()].ausschliessenWoX(durchZahl,eckPunkte[2].getX())) outPut = true;
+								if(aktualisieren()) outPut = true;
 								continue nextLoop;
 							}
 						}
@@ -120,36 +242,36 @@ public class Sodoku {
 				}
 			}
 		}
-	//überprüfen ob Säulen gleiche basis Linie haben
-	
-	//überprüfen ob "Dach" auf verschiedenn Höhen ist
-	
-	//Ausschliesen
+		return outPut;
 	}
 	
 	/**
 	 * ueberpruft ob die Felder aus a zusammen mit den FEldern aus b einen X Wing bilden, 
 	 * wenn ja schliest die Methode daruas rueckschluesse und gibt true zurueck.
 	 * sollte kein xWing vorliegen gibt die Methode False zurück.
-	 * @return
+	 * @return true wenn der aufruf etwas bei den Feldern des Blocks veraendert hat sonst false
 	 */
-	private void xWing(Feld a[], Feld b[], int zahl) {
+	private boolean xWing(Feld a[], Feld b[], int zahl) {
+		boolean outPut = false;
 		if(a[0].getX() == b[0].getX() && a[1].getX() == b[1].getX()) {//Xwing gefunden --> auf allen beiden vetikalen linien ( a[0] und a[1]) kann zahl geloescht werden
-			vertikal[a[0].getX()].ausschliesenAusser(zahl, new Feld[] {a[0],b[0]});
-			vertikal[a[1].getX()].ausschliesenAusser(zahl, new Feld[] {a[1],b[1]});
-			aktualisieren();
+			if(vertikal[a[0].getX()].ausschliesenAusser(zahl, new Feld[] {a[0],b[0]})) outPut = true;
+			if(vertikal[a[1].getX()].ausschliesenAusser(zahl, new Feld[] {a[1],b[1]})) outPut = true;
+			if(aktualisieren()) outPut = true;
 		}else if(a[0].getY() == b[0].getY() && a[1].getY() == b[1].getY()) {//Xwing gefunden --> auf allen beiden horizontalen linien ( a[0] und a[1])kann zahl geloescht werden
-			horizontal[a[0].getY()].ausschliesenAusser(zahl, new Feld[] {a[0],b[0]});
-			horizontal[a[1].getY()].ausschliesenAusser(zahl, new Feld[] {a[1],b[1]});
-			aktualisieren();
+			if(horizontal[a[0].getY()].ausschliesenAusser(zahl, new Feld[] {a[0],b[0]})) outPut = true;
+			if(horizontal[a[1].getY()].ausschliesenAusser(zahl, new Feld[] {a[1],b[1]})) outPut = true;
+			if(aktualisieren()) outPut = true;
 		}
+		return outPut;
 	}
 	
 	/**
 	 * überprüft das Spiel feld nach der 2-er Kette 
 	 * erklärung: https://www.youtube.com/watch?v=QTlmYXAMgLE
+	 * @return true wenn der aufruf etwas bei den Feldern des Blocks veraendert hat sonst false
 	 */
-	private void zweierKette() {
+	private boolean zweierKette() {
+		boolean outPut = false;
 		//2 String Kite
 		for(int iV = 0; iV<9; iV++) {
 			byte[] aZweiMoeglich = vertikal[iV].get2MalMoeglich();
@@ -168,8 +290,8 @@ public class Sodoku {
 							if(nichtVerbunden != null) {
 								// 2er String gefunden
 								//schlusfolgerung aus 2er String kette ziehen
-								spielfeld[nichtVerbunden[0].getY()][nichtVerbunden[1].getX()].ausschliesen(durchZahl);
-								aktualisieren();
+								if(spielfeld[nichtVerbunden[0].getY()][nichtVerbunden[1].getX()].ausschliesen(durchZahl)) outPut = true;
+								if(aktualisieren()) outPut = true;
 							}
 						}
 					}
@@ -194,8 +316,8 @@ public class Sodoku {
 								continue;
 							Feld nichtVerbunden[] = verbundenTurbot(durchZahl,felderMoeglichV, felderMoeglichB);
 							if(nichtVerbunden != null) {
-								spielfeld[nichtVerbunden[0].getY()][nichtVerbunden[1].getX()].ausschliesen(durchZahl);
-								aktualisieren();
+								if(spielfeld[nichtVerbunden[0].getY()][nichtVerbunden[1].getX()].ausschliesen(durchZahl)) outPut = true;
+								if(aktualisieren()) outPut = true;
 							}
 						}
 					}
@@ -207,14 +329,15 @@ public class Sodoku {
 								continue;
 							Feld nichtVerbunden[] = verbundenTurbot(durchZahl,felderMoeglichH, felderMoeglichB);
 							if(nichtVerbunden != null) {
-								spielfeld[nichtVerbunden[1].getY()][nichtVerbunden[0].getX()].ausschliesen(durchZahl);
-								aktualisieren();
+								if(spielfeld[nichtVerbunden[1].getY()][nichtVerbunden[0].getX()].ausschliesen(durchZahl)) outPut = true;
+								if(aktualisieren()) outPut = true;
 							}
 						}
 					}
 				}
 			}
 		}
+		return outPut;
 	}
 	/**
 	 * hilfsmethode für zweier Kette
@@ -410,8 +533,10 @@ public class Sodoku {
 	/**
 	 * Ueberprueft alle Blöcke ob es Zahlen gibt für die alle moegöichen Felder in einer Reihe/Spalte liegen
 	 * ist dies der Fall wird diese Zahl aus allen anderen Feldern der Reihe/Spalte gelöscht.
+	 * @return true wenn der aufruf etwas bei den Feldern der neuner Reihe veraendert hat sonst false
 	 */
-	private void blockFindLocked() {
+	private boolean blockFindLocked() {
+		boolean outPut = false;
 		for(int bI = 0; bI<9; bI++) {
 			List<Feld> moeglich[] = bloecke[bI].getMoeglich();
 			for(int i = 0; i<9; i++) {
@@ -425,13 +550,16 @@ public class Sodoku {
 							y= -1;
 					}
 					if(x != -1) {//Felder befinden sich in einer spalte
-						vertikal[x].ausschliesenAusser(i+1, moeglich[i]);
+						if(vertikal[x].ausschliesenAusser(i+1, moeglich[i]))
+							outPut = true;
 					}else if(y != -1) {//Felder befinden sich in einer Reihe
-						horizontal[y].ausschliesenAusser(i+1, moeglich[i]);
+						if(horizontal[y].ausschliesenAusser(i+1, moeglich[i]))
+							outPut = true;
 					}
 				}
 			}
 		}
+		return outPut;
 	}
 	
 	
@@ -469,22 +597,32 @@ public class Sodoku {
 	}
 	/**
 	 * aktualisiert alle Linien und Blöcke
+	 * @return true wenn der aufruf etwas bei den Feldern veraendert hat sonst false
 	 */
-	private void aktualisieren() {
-		blockFindLocked();
+	private boolean aktualisieren() {
+		boolean outPut = false;
+		if(blockFindLocked()) //Für test ausgeklammert
+			outPut = true;
 		for(int i = 0; i<9;i++) {
-			horizontal[i].aktualisieren();
-			vertikal[i].aktualisieren();
-			bloecke[i].aktualisieren();
+			if(horizontal[i].aktualisieren())
+				outPut = true;
+			if(vertikal[i].aktualisieren())
+				outPut = true;
+			if(bloecke[i].aktualisieren())
+				outPut = true;
 		}
-		if(!vormerkungen.isEmpty()) {
-			for(int i = 0; i< vormerkungen.size();i++) {
-			if(vormerkungen.get(i).aktualisieren()) {
-				vormerkungen.remove(i);
-			}
-			}
-		}
-		blockFindLocked();
+		//Vormerkungen nicht aktualisieren
+//		if(!vormerkungen.isEmpty()) {
+//			for(int i = 0; i< vormerkungen.size();i++) {
+//			if(vormerkungen.get(i).aktualisieren()) {
+//				vormerkungen.remove(i);
+//			}
+//			}
+//		}
+		
+		if(blockFindLocked())
+			outPut = true;
+		return outPut;
 	}
 	
 	/**

@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -35,16 +36,26 @@ public class Feld {
 				}
 		}
 		
+		public Feld copy() {
+			Feld outPut = new Feld(zahl, pos);
+			outPut.setMoegliche(zahlMoeglich);
+			outPut.setBlock(block);
+			return outPut;
+		}
+		
 		/**
 		 * Schliest zahl von den Moeglichen Zahlen aus,
 		 * wenn nur noch eine Zahl übrig ist wird diese in zahl abgespeichert
 		 * @param zahl
+		 * @return true wenn ein neuer Wert ausgeschlosen wurde der vorher noch moeglich war und false wenn nicht
 		 */
-		public void ausschliesen(byte pZahl) {
+		public boolean ausschliesen(byte pZahl) {
+			boolean outPut = false;
 			if(zahl == -1) { // verhindert das schon identifiziertes Feld erneut veraendert wird
 				if(zahlMoeglich[pZahl-1]) {
 					zahlMoeglich[pZahl-1] = false;
 					zahlenMoeglich --;
+					outPut = true;
 				}
 				if(zahlenMoeglich == 1)
 				{
@@ -54,26 +65,38 @@ public class Feld {
 					}
 				}
 			}
+			return outPut;
 		}
 		/**
 		 * schliest alle werte aus welche in auschliesen true sind
-		 * @param auszuschliesen
+		 * @return true wenn ein neuer Wert ausgeschlosen wurde der vorher noch moeglich war und false wenn nicht
 		 */
-		public void ausschliesen(boolean auszuschliesen[]) {
+		public boolean ausschliesen(boolean auszuschliesen[]) {
+			boolean outPut = false;
 			for(byte i = 0; i<auszuschliesen.length ; i++) {
 				if(auszuschliesen[i]) {
+					if(!outPut)
+					outPut = ausschliesen((byte)(i+1));
+					else
 					ausschliesen((byte)(i+1));
 				}
 			}
+			return outPut;
 		}
 		/**
 		 * schliest alle werte aus welche in auschliesen true sind
 		 * @param auszuschliesen
+		 * @return true wenn ein neuer Wert ausgeschlosen wurde der vorher noch moeglich war und false wenn nicht
 		 */
-		public void ausschliesen(byte[] auszuschliessen) {
+		public boolean ausschliesen(byte[] auszuschliessen) {
+			boolean outPut = false;
 			for(byte i = 0; i<auszuschliessen.length ; i++) {
-				ausschliesen(auszuschliessen[i]);
+				if(!outPut)
+					outPut = ausschliesen(auszuschliessen[i]);
+				else
+					ausschliesen(auszuschliessen[i]);
 			}
+			return outPut;
 		}
 		
 		
@@ -118,7 +141,7 @@ public class Feld {
 			byte bMoegliche[] = b.getMoegliche();
 			byte cMoegliche[] = c.getMoegliche();
 			
-			byte pool[] =vereinigen(vereinigen(aMoegliche, bMoegliche), cMoegliche);//hier werden jene Zahlen abgespeichert welche in dem drilling enthalten sein dürfen(die von a,b,c moegliche mit laenge 3
+			byte pool[] =MengenOperationen.vereinigen(MengenOperationen.vereinigen(aMoegliche, bMoegliche), cMoegliche);//hier werden jene Zahlen abgespeichert welche in dem drilling enthalten sein dürfen(die von a,b,c moegliche mit laenge 3
 				
 			if(pool.length == 3)
 				return true;
@@ -126,12 +149,12 @@ public class Feld {
 			return false;
 		}
 		
-		public static void hiddenDrilling(Feld a,Feld b, Feld c, byte[] anzahlMoegliche) {
+		public static boolean hiddenDrilling(Feld a,Feld b, Feld c, byte[] anzahlMoegliche) {
 			byte aMoegliche[] = a.getMoegliche();
 			byte bMoegliche[] = b.getMoegliche();
 			byte cMoegliche[] = c.getMoegliche();
 			
-			byte pool[] = vereinigen(vereinigen(aMoegliche, bMoegliche), cMoegliche); 
+			byte pool[] = MengenOperationen.vereinigen(MengenOperationen.vereinigen(aMoegliche, bMoegliche), cMoegliche); 
 			byte count[] = new byte[pool.length]; // hier wird gespeichert wie oft die Zahlen in dem 3er Paar vorkommen
 			
 			for(int i = 0; i<pool.length;i++) {
@@ -152,11 +175,11 @@ public class Feld {
 					index ++;
 				}
 			}
+			
 			if(abgedektCount == 3) {
-				a.setMoegliche(abgedeckt);
-				b.setMoegliche(abgedeckt);
-				c.setMoegliche(abgedeckt);
+				return(a.setMoegliche(abgedeckt)|b.setMoegliche(abgedeckt)|c.setMoegliche(abgedeckt));
 			}
+			return false;
 		}
 		
 		/**
@@ -183,12 +206,17 @@ public class Feld {
 		 * welche Zahl zu diesem Feld gehört
 		 * 
 		 * @param pZahl
+		 * @retun true wenn pZahl nicht schon vorhereindeutig war(neue informationen) false wenn pZahl schon vorher eindeutig war
 		 */
-		public void setZahl(int pZahl) {
+		public boolean setZahl(int pZahl) {
+			boolean outPut = false;
+			if(zahl == -1)
+				outPut = true;
 			zahl = (byte)pZahl;
 			zahlenMoeglich = 1;
 			zahlMoeglich = new boolean[9];
 			zahlMoeglich[pZahl -1] = true;
+			return outPut;
 		}
 		
 		/**
@@ -222,8 +250,10 @@ public class Feld {
 		/**
 		 * setzt nur die zahlen welche in p enthalten sind und vor aufruf moeglich sind auf moeglich
 		 * @param p
+		 * @return true wenn neue informationen vorliegen (eine Zahl von den moegliche gestrichen wurden) false wenn nicht
 		 */
-		public void setMoegliche(byte[] p) {
+		public boolean setMoegliche(byte[] p) {
+			int temp = zahlenMoeglich;//speichert den allten wert von Zahlen moeglich ab
 			zahlenMoeglich = 0;
 			for(int i = 0; i<9; i++) {
 				if(zahlMoeglich[i] && isIn((byte)(i+1),p))
@@ -231,11 +261,20 @@ public class Feld {
 				else
 					zahlMoeglich[i] = false;
 			}
-			
+			return temp != zahlenMoeglich;
 		}
 		
 		public byte getZahlenMoeglich() {
 			return zahlenMoeglich;
+		}
+		
+		public void setMoegliche(boolean[] p) {
+			if(zahl == -1) {
+			zahlMoeglich = Arrays.copyOf(p, p.length);
+			zahlenMoeglich = 0;
+			for(int i = 0; i<9; i++)
+				if(zahlMoeglich[i])
+					zahlenMoeglich ++;}
 		}
 		/**
 		 * 
@@ -251,26 +290,7 @@ public class Feld {
 			return false;
 		}
 		
-		public static byte[] vereinigen(byte[] a,byte[] b) {
-			List<Byte> elements = new ArrayList<Byte>();
-				for(byte bA : a)
-					elements.add(bA);
-				
-				enthalten:
-					for(byte bB:b) {
-						for(byte bA:a)
-						{
-							if(bB == bA)
-								continue enthalten;
-						}
-						elements.add(bB);
-					}
-				Collections.sort(elements);;
-			byte outPut[] = new byte[elements.size()];
-			for(int i = 0; i<outPut.length;i++)
-				outPut[i] = elements.get(i);
-			return outPut;
-		}
+		
 		
 		public void setBlock(int block) {if(this.block == -1)this.block = block;}
 		public int getBlock() {return block;}
@@ -300,5 +320,7 @@ public class Feld {
 		public String getPosString() {
 			return "("+pos[1]+"|"+pos[0]+")";
 		}
+		
+		
 		
 }

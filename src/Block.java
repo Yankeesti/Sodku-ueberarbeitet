@@ -52,22 +52,30 @@ public class Block extends neunerFeld{
 	 * lösche Zahl als moeglichkeit bei allen Feldern wo x = x ist
 	 * @param zahl
 	 * @param x
+	 * @return true wenn der aufruf etwas bei den Feldern des Blocks veraendert hat sonst false
 	 */
-	public void ausschliessenWoX(int zahl, int x) {
+	public boolean ausschliessenWoX(int zahl, int x) {
+		boolean outPut = false;
 		for(Feld i: felder)
 			if(i.getX() == x)
-				i.ausschliesen((byte)zahl);
+				if(i.ausschliesen((byte)zahl))
+						outPut = true;
+		return outPut;
 	}
 	
 	/**
 	 * lösche Zahl als moeglichkeit bei allen Feldern wo y = y ist
 	 * @param zahl
 	 * @param y
+	 * @return true wenn der aufruf etwas bei den Feldern der neuner Reihe veraendert hat sonst false
 	 */
-	public void ausschliessenWoY(int zahl, int y) {
+	public boolean ausschliessenWoY(int zahl, int y) {
+		boolean outPut = false;
 		for(Feld i: felder)
 			if(i.getY() == y)
-				i.ausschliesen((byte)zahl);
+				if(i.ausschliesen((byte)zahl))
+					outPut = true;
+		return outPut;
 	}
 
 }

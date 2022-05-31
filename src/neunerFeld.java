@@ -40,8 +40,10 @@ public class neunerFeld {
 		/**
 		 * Aktualisiert das neuner Feld und überprüft ob durch ausschluss verfahren Felder identifiziert
 		 * werden können
+		 * @return true wenn der aufruf etwas bei den Feldern der neuner Reihe veraendert hat sonst false
 		 */
-		protected void aktualisieren() {
+		protected boolean aktualisieren() {
+			boolean outPut = false;
 			for(Feld p: felder) { // prüfen welche Zahlen schon in dem neuner Feld enthalten sind
 				byte pZahl = p.getZahl();
 				if(pZahl>0) {
@@ -49,15 +51,17 @@ public class neunerFeld {
 				}
 				
 			}
-			for(Feld p: felder) 
-				p.ausschliesen(enthalten);
+			for(Feld p: felder) {
+				if(p.ausschliesen(enthalten)) outPut = true;
+				}
+				
 			
 			zaehleMoegliche();
-			zwilling();
-			drilling();
-			moeglicheUeberpruefen();
+			if(zwilling()) outPut = true;
+			if(drilling()) outPut = true;
+			if(moeglicheUeberpruefen()) outPut = true;
 			aktMoeglicheList();
-			
+			return outPut;
 		}
 		/**
 		 * Zaehl wie viele Felder für jede Zahl moeglich sind und speichert das Ergebniss in anzahl moegliche ab
@@ -77,18 +81,21 @@ public class neunerFeld {
 		/**
 		 * überprüft ob es eine Ziffer gibt für die nur ein Feld in Frage kommt
 		 * wenn ja wird dieses Feld mit der Ziffer besetzt
+		 * @return true wenn der aufruf etwas bei den Feldern der neuner Reihe veraendert hat sonst false
 		 */
-		private void moeglicheUeberpruefen() {
+		private boolean moeglicheUeberpruefen() {
+			boolean outPut = false;
 			for(int i = 0; i<anzahlMoegliche.length ; i++) {
 				if(anzahlMoegliche[i] == 1) {//Zahlgefunden für die nur ein Feld in frage kommt
 					//Feld raussuchen
 					for(Feld p: felder) {
 						if(p.istMoeglich(i+1)) {
-							p.setZahl(i+1);
+							if(p.setZahl(i+1)) outPut = true;
 						}
 					}
 				}
 			}
+			return outPut;
 		}
 		
 		public void print() {
@@ -98,10 +105,12 @@ public class neunerFeld {
 		
 		/**
 		 * wenn ein Zwilling in dem neuner Feld vorhanden ist wird dieser ausgegeben
+		 * @return true wenn der aufruf etwas bei den Feldern der neuner Reihe veraendert hat sonst false
 		 */
-		protected void zwilling() {
+		protected boolean zwilling() {
 			//ueberpruefen ob es 2 Zahlen in dem neuener Feld gibt welche nur an 2 Feldern moeglich sind
 			//naked Pair (Felder werden gesucht die 2 zahlen enthalten von dennen es nur 2 moeglichkeiten in dem Feld gibt)
+			boolean outPut = false;
 			byte zweimal[] = get2MalMoeglich();
 			for(byte a = 0; a < zweimal.length; a++) {
 				for(byte b = (byte)(a+1); b < zweimal.length; b++) {
@@ -110,8 +119,8 @@ public class neunerFeld {
 						if(felder[feldA].istMoeglich(aktPaar))// true --> erstes mögliches Paar für zwilling gefunden
 						for(int feldB = feldA+1; feldB <9; feldB++) {
 							if(felder[feldB].istMoeglich(aktPaar)){// true --> zwilings Paar gefunden
-								felder[feldA].setMoegliche(aktPaar);
-								felder[feldB].setMoegliche(aktPaar);
+								if(felder[feldA].setMoegliche(aktPaar)||felder[feldB].setMoegliche(aktPaar))
+									outPut = true;
 							}
 						}
 					}
@@ -122,15 +131,19 @@ public class neunerFeld {
 				if(felder[i].getZahlenMoeglich() == 2) 
 					for(int b = i+1;b<9;b++) {
 						if(felder[i].identisch(felder[b]))//zwilling gefunden
-							ausschliesenAusser(felder[i].getMoegliche(), new Feld[] {felder[i],felder[b]});
+							if(ausschliesenAusser(felder[i].getMoegliche(), new Feld[] {felder[i],felder[b]}))
+								outPut = true;
 					}
 			}
+			return outPut;
 		}
 		
 		/**
 		 * Wenn ein Drilling in dem neuner Feld vorhanden ist werden alle drei drillings felder ausgegen
+		 * @return true wenn der aufruf etwas bei den Feldern der neuner Reihe veraendert hat sonst false
 		 */
-		public void drilling() {
+		public boolean drilling() {
+			boolean outPut = false;
 			for(int feldA = 0; feldA<9; feldA++) {
 				if(felder[feldA].getZahl() == -1)
 					for(int feldB = feldA+1; feldB<9; feldB++) {
@@ -148,14 +161,17 @@ public class neunerFeld {
 											auszuschliessen = felder[feldC].getMoegliche();
 										
 										Feld[] auslassen = {felder[feldA],felder[feldB],felder[feldC]};
-										ausschliesenAusser(auszuschliessen, auslassen);
+										if(ausschliesenAusser(auszuschliessen, auslassen))
+											outPut = true;
 									}else {//nach Hidden Drilling suchen (3 Felder enthalten alle möglichkeiten für 3 Zahlen)
-										Feld.hiddenDrilling(felder[feldA],felder[feldB],felder[feldC],anzahlMoegliche);
+										if(Feld.hiddenDrilling(felder[feldA],felder[feldB],felder[feldC],anzahlMoegliche))
+											outPut = true;
 									}
 								}
 							}
 					}
 			}
+			return outPut;
 		}
 		
 		/**
@@ -163,36 +179,46 @@ public class neunerFeld {
 		 * und lässt die Felder aus auslassen aus.
 		 * @param auszuschliessen
 		 * @param auslassen
+		 * @return true wenn der aufruf etwas bei den Feldern der neuner Reihe veraendert hat sonst false
 		 */
-		public void ausschliesenAusser(byte[] auszuschliessen, Feld[] auslassen) {
+		public boolean ausschliesenAusser(byte[] auszuschliessen, Feld[] auslassen) {
+			boolean outPut = false;
 			nextFeld:
 			for(Feld f:felder) {
 				for(Feld ausla: auslassen)
 					if(f == ausla)
 						continue nextFeld;
-				f.ausschliesen(auszuschliessen);
+				if(f.ausschliesen(auszuschliessen))
+					outPut = true;
 			}
+			return outPut;
 		}
-		public void ausschliesenAusser(int zahl, List<Feld> auslassen) {
+		public boolean ausschliesenAusser(int zahl, List<Feld> auslassen) {
+			boolean outPut = false;
 			nextFeld:
 				for(Feld f: felder) {
 					for(int i = 0; i<auslassen.size();i++) 
 						if(f == auslassen.get(i))
 							continue nextFeld;
-					f.ausschliesen((byte) zahl);
+					if(f.ausschliesen((byte) zahl))
+						outPut = true;
 					
 				}
+			return outPut;
 		}
 		
-		public void ausschliesenAusser(int zahl,Feld[] auslassen) {
+		public boolean ausschliesenAusser(int zahl,Feld[] auslassen) {
+			boolean outPut = false;
 			nextFeld:
 				for(Feld f: felder) {
 					for(Feld ausla: auslassen)
 						if(f == ausla)
 							continue nextFeld;
-					f.ausschliesen((byte) zahl);
+					if(f.ausschliesen((byte) zahl))
+						outPut = true;
 					
 				}
+			return outPut;
 		}
 		/**
 		 *aktualisiert die Liste welche alle möglichen Felder für jede Zahl enthält
@@ -204,6 +230,34 @@ public class neunerFeld {
 						moeglich[i].remove(indexInList);
 				}
 			}
+		}
+		
+		
+		/**
+		 * 
+		 * @return true wenn das neuner Feld nach den Sodoku regeln richtig ist(jede zahl kommt nur einmal vor) sonst false;
+		 */
+		public boolean richtig() {
+			int count[] = new int[9];
+			for(Feld p: felder) {
+				int pZahl = p.getZahl();
+				if(pZahl >-1)
+					count[pZahl-1]++;
+			}
+			for(int i : count)
+				if(i>1)
+					return false;
+			return true;
+		}
+		
+		/**
+		 * @return true wenn das neuner Feld jede Zahl genau einmal enthält sonst false
+		 */
+		public boolean fertig() {
+			for(boolean p:enthalten) {
+				if(!p) {return false;}
+			}
+			return true;
 		}
 		
 		
