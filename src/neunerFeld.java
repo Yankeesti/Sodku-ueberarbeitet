@@ -52,7 +52,7 @@ public class neunerFeld {
 				
 			}
 			for(Feld p: felder) {
-				if(p.ausschliesen(enthalten)) outPut = true;
+				if(p.ausschliessen(enthalten)) outPut = true;
 				}
 				
 			
@@ -131,7 +131,7 @@ public class neunerFeld {
 				if(felder[i].getZahlenMoeglich() == 2) 
 					for(int b = i+1;b<9;b++) {
 						if(felder[i].identisch(felder[b]))//zwilling gefunden
-							if(ausschliesenAusser(felder[i].getMoegliche(), new Feld[] {felder[i],felder[b]}))
+							if(ausschliessenAusser(felder[i].getMoegliche(), new Feld[] {felder[i],felder[b]}))
 								outPut = true;
 					}
 			}
@@ -161,7 +161,7 @@ public class neunerFeld {
 											auszuschliessen = felder[feldC].getMoegliche();
 										
 										Feld[] auslassen = {felder[feldA],felder[feldB],felder[feldC]};
-										if(ausschliesenAusser(auszuschliessen, auslassen))
+										if(ausschliessenAusser(auszuschliessen, auslassen))
 											outPut = true;
 									}else {//nach Hidden Drilling suchen (3 Felder enthalten alle möglichkeiten für 3 Zahlen)
 										if(Feld.hiddenDrilling(felder[feldA],felder[feldB],felder[feldC],anzahlMoegliche))
@@ -181,40 +181,40 @@ public class neunerFeld {
 		 * @param auslassen
 		 * @return true wenn der aufruf etwas bei den Feldern der neuner Reihe veraendert hat sonst false
 		 */
-		public boolean ausschliesenAusser(byte[] auszuschliessen, Feld[] auslassen) {
+		public boolean ausschliessenAusser(byte[] auszuschliessen, Feld[] auslassen) {
 			boolean outPut = false;
 			nextFeld:
 			for(Feld f:felder) {
 				for(Feld ausla: auslassen)
 					if(f == ausla)
 						continue nextFeld;
-				if(f.ausschliesen(auszuschliessen))
+				if(f.ausschliessen(auszuschliessen))
 					outPut = true;
 			}
 			return outPut;
 		}
-		public boolean ausschliesenAusser(int zahl, List<Feld> auslassen) {
+		public boolean ausschliessenAusser(int zahl, List<Feld> auslassen) {
 			boolean outPut = false;
 			nextFeld:
 				for(Feld f: felder) {
 					for(int i = 0; i<auslassen.size();i++) 
 						if(f == auslassen.get(i))
 							continue nextFeld;
-					if(f.ausschliesen((byte) zahl))
+					if(f.ausschliessen((byte) zahl))
 						outPut = true;
 					
 				}
 			return outPut;
 		}
 		
-		public boolean ausschliesenAusser(int zahl,Feld[] auslassen) {
+		public boolean ausschliessenAusser(int zahl,Feld[] auslassen) {
 			boolean outPut = false;
 			nextFeld:
 				for(Feld f: felder) {
 					for(Feld ausla: auslassen)
 						if(f == ausla)
 							continue nextFeld;
-					if(f.ausschliesen((byte) zahl))
+					if(f.ausschliessen((byte) zahl))
 						outPut = true;
 					
 				}

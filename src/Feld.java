@@ -1,22 +1,19 @@
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 
 /**
  * @author timheinsberg
  * Objekte dieser Klasse sind die Felder des Sodokus
  */
 public class Feld {
+	
 	//Atribute
-		private byte zahl; // wenn -1 ist zahl noch unbekannt
-		private boolean zahlMoeglich[]; // ein Feld mit insgesamt 9 Felderen welche abspeichern ob die zahl noch moeglich ist,
-										// felder sind um 1 nach links verschoben(z.b. wenn zahlMoeglich[0] == true -> 1 ist moeglich).
-		private byte zahlenMoeglich;
-		private byte pos[]; // {y,x}
-		private int block;//speicher ab in welchem Block sich das Feld befindet
-		private List<Vormerkung> vormerkung; //Liste enthält ein 2 dimensionale Feld Arrays
-		
+		private byte zahl; 				// wenn -1 ist zahl noch unbekannt
+		private boolean zahlMoeglich[]; // ein Feld mit insgesamt 9 Felderen welche abspeichern ob die zahl noch möglich ist,
+		private byte zahlenMoeglich;	// Speichert wie viele zahlen noch möglich sind
+		private byte pos[]; 			// {y,x}
+		private int block;				// speichert in welchem Block sich das Feld befindet
+
+	//Konstruktoren
 		Feld(byte pPos[]){
 			block = -1;
 			zahl = -1;
@@ -30,12 +27,16 @@ public class Feld {
 			this(pos);
 			if(pZahl>0 && pZahl <=9) {
 				zahl = pZahl;
-				zahlMoeglich = new boolean[9]; // alle zahlen auf false setzen.
+				zahlMoeglich = new boolean[9]; // alle Zahlen auf false setzen.
 				zahlMoeglich[pZahl-1] = true;
 				zahlenMoeglich = 1;
 				}
 		}
 		
+		/**
+		 * 
+		 * @return Kopie von augerufenem Feld
+		 */
 		public Feld copy() {
 			Feld outPut = new Feld(zahl, pos);
 			outPut.setMoegliche(zahlMoeglich);
@@ -44,14 +45,14 @@ public class Feld {
 		}
 		
 		/**
-		 * Schliest zahl von den Moeglichen Zahlen aus,
+		 * Schliest pZahl von den Moeglichen Zahlen aus,
 		 * wenn nur noch eine Zahl übrig ist wird diese in zahl abgespeichert
-		 * @param zahl
+		 * @param auszuschliessende Zahl
 		 * @return true wenn ein neuer Wert ausgeschlosen wurde der vorher noch moeglich war und false wenn nicht
 		 */
-		public boolean ausschliesen(byte pZahl) {
+		public boolean ausschliessen(byte pZahl) {
 			boolean outPut = false;
-			if(zahl == -1) { // verhindert das schon identifiziertes Feld erneut veraendert wird
+			if(zahl == -1) { 									// verhindert das schon identifiziertes Feld erneut verändert wird
 				if(zahlMoeglich[pZahl-1]) {
 					zahlMoeglich[pZahl-1] = false;
 					zahlenMoeglich --;
@@ -67,42 +68,42 @@ public class Feld {
 			}
 			return outPut;
 		}
+		
 		/**
-		 * schliest alle werte aus welche in auschliesen true sind
+		 * Schliest alle Werte aus welche in auschliessen true sind
 		 * @return true wenn ein neuer Wert ausgeschlosen wurde der vorher noch moeglich war und false wenn nicht
 		 */
-		public boolean ausschliesen(boolean auszuschliesen[]) {
+		public boolean ausschliessen(boolean auszuschliessen[]) {
 			boolean outPut = false;
-			for(byte i = 0; i<auszuschliesen.length ; i++) {
-				if(auszuschliesen[i]) {
+			for(byte i = 0; i<auszuschliessen.length ; i++) {
+				if(auszuschliessen[i]) {
 					if(!outPut)
-					outPut = ausschliesen((byte)(i+1));
+					outPut = ausschliessen((byte)(i+1));
 					else
-					ausschliesen((byte)(i+1));
+					ausschliessen((byte)(i+1));
 				}
 			}
 			return outPut;
 		}
+		
 		/**
-		 * schliest alle werte aus welche in auschliesen true sind
-		 * @param auszuschliesen
-		 * @return true wenn ein neuer Wert ausgeschlosen wurde der vorher noch moeglich war und false wenn nicht
+		 * Schliest alle Werte aus welche in auschliessen true sind
+		 * @param auszuschliessende Zahlen
+		 * @return true wenn ein neuer Wert ausgeschlossen wurde der vorher noch möglich war und false wenn nicht
 		 */
-		public boolean ausschliesen(byte[] auszuschliessen) {
+		public boolean ausschliessen(byte[] auszuschliessen) {
 			boolean outPut = false;
 			for(byte i = 0; i<auszuschliessen.length ; i++) {
 				if(!outPut)
-					outPut = ausschliesen(auszuschliessen[i]);
+					outPut = ausschliessen(auszuschliessen[i]);
 				else
-					ausschliesen(auszuschliessen[i]);
+					ausschliessen(auszuschliessen[i]);
 			}
 			return outPut;
 		}
 		
-		
-		
 		/**
-		 * printet das Feld wenn eindeutig die Zahl sonst ein leerzeichen
+		 * Printet das Feld, wenn die Zahl eindutig ist wird diese in einer Zeile ausgeprintet sonst ein leerzeichen
 		 */
 		public void print() {
 			if(zahl == -1)
@@ -110,18 +111,20 @@ public class Feld {
 			else
 				System.out.print(zahl);
 		}
+		
 		/**
 		 * 
-		 * @param pZahl
-		 * @return wenn pZahl moeglich true sonst false
+		 * @param Zahl die auf möglich überprüft wird
+		 * @return wenn pZahl möglich true sonst false
 		 */
 		public boolean istMoeglich(int pZahl) {
 			return zahlMoeglich[pZahl-1];
 		}
+		
 		/**
-		 * gibt true zurück wenn alle Zahlen Moeglich sind
-		 * @param pZahlen
-		 * @return
+		 * gibt true zurück wenn alle Zahlen Möglich sind
+		 * @param zu überprüfende Zahlen
+		 * @return true wenn alle Zahlen möglich sind, sonst false
 		 */
 		public boolean istMoeglich(byte pZahlen[]) {
 			for(byte i : pZahlen) {
@@ -133,8 +136,9 @@ public class Feld {
 		
 		/**
 		 * 
-		 * @param a
-		 * @return true wenn Feld a ein möglicher drillings Partner ist
+		 * @param b
+		 * @param c
+		 * @return true wenn die beiden Felder gemeinsam mit dem Objekt über welches die Methode aufgeruffen wird einen Drilling bilden
 		 */
 		public boolean isDrilling(Feld b,Feld c) {
 			byte aMoegliche[] = getMoegliche();
@@ -149,6 +153,14 @@ public class Feld {
 			return false;
 		}
 		
+		/**
+		 * 
+		 * @param a
+		 * @param b
+		 * @param c
+		 * @param anzahlMoegliche
+		 * @return true wenn ein hidden Drilling vorliegt, sonst false
+		 */
 		public static boolean hiddenDrilling(Feld a,Feld b, Feld c, byte[] anzahlMoegliche) {
 			byte aMoegliche[] = a.getMoegliche();
 			byte bMoegliche[] = b.getMoegliche();
@@ -171,6 +183,8 @@ public class Feld {
 			for(int i = 0; i<pool.length;i++) {
 				if(count[i] == anzahlMoegliche[pool[i]-1]) {
 					abgedektCount ++;
+					if(abgedektCount > 3)
+						return false;
 					abgedeckt[index] = pool[i];
 					index ++;
 				}
@@ -185,7 +199,7 @@ public class Feld {
 		/**
 		 * 
 		 * @param b
-		 * @return true wenn beide Felder die gleichen Moeglichenm haben sonst false
+		 * @return true wenn beide Felder die gleichen möglichen haben sonst false
 		 */
 		public boolean identisch(Feld b) {
 			byte aMoeglich[] = getMoegliche();
@@ -201,6 +215,7 @@ public class Feld {
 		}
 		
 	//Getter und Setter methoden
+		
 		/**
 		 * setzt zahl auf pZahl und identifiziert damit eindeutig
 		 * welche Zahl zu diesem Feld gehört
@@ -219,19 +234,16 @@ public class Feld {
 			return outPut;
 		}
 		
-		/**
-		 * @return zahl
-		 */
-		public byte getZahl() {
-			return zahl;
-		}
-		
+		public byte getZahl() {return zahl;}
 		public int getX(){return pos[1];}
 		public int getY(){return pos[0];}
+		public byte getZahlenMoeglich() {return zahlenMoeglich;}
+		public void setBlock(int block) {if(this.block == -1)this.block = block;}
+		public int getBlock() {return block;}
 		
 		/**
 		 * 
-		 * @return ein byte Array mit moeglichen Zahlen für dieses Feld
+		 * @return ein byte Array mit möglichen Zahlen für dieses Feld
 		 */
 		public byte[] getMoegliche() {
 			byte outPut[] = new byte[zahlenMoeglich];
@@ -247,10 +259,11 @@ public class Feld {
 			}
 			return outPut;
 		}
+		
 		/**
-		 * setzt nur die zahlen welche in p enthalten sind und vor aufruf moeglich sind auf moeglich
+		 * Setzt nur die zahlen welche in p enthalten sind und vor aufruf möglich sind auf möglich
 		 * @param p
-		 * @return true wenn neue informationen vorliegen (eine Zahl von den moegliche gestrichen wurden) false wenn nicht
+		 * @return true wenn neue informationen vorliegen (mindestens eine Zahl wurde von den möglichen gestrichen) false wenn nicht
 		 */
 		public boolean setMoegliche(byte[] p) {
 			int temp = zahlenMoeglich;//speichert den allten wert von Zahlen moeglich ab
@@ -262,10 +275,6 @@ public class Feld {
 					zahlMoeglich[i] = false;
 			}
 			return temp != zahlenMoeglich;
-		}
-		
-		public byte getZahlenMoeglich() {
-			return zahlenMoeglich;
 		}
 		
 		public void setMoegliche(boolean[] p) {
@@ -289,38 +298,4 @@ public class Feld {
 			}
 			return false;
 		}
-		
-		
-		
-		public void setBlock(int block) {if(this.block == -1)this.block = block;}
-		public int getBlock() {return block;}
-		
-		//Methoden zum testen wen Projekt fertig ist löschen
-		public void setPos(int y,int x) {
-			pos[0] = (byte)y;
-			pos[1] = (byte)x;
-		}
-		/**
-		 * setzt die moeglichen unabhängig davon ob sie vorher moeglich waren
-		 */
-		public void setMoeglicheHard(byte[] p) {
-			zahlenMoeglich = (byte)p.length;
-			zahlMoeglich = new boolean[9];
-			nextByte:
-			for(int i = 0; i<9;i++) {
-				for(byte pzahl: p) {
-					if(pzahl == i+1) {
-						zahlMoeglich[i] = true;
-						continue nextByte;
-					}
-				}
-			}
-		}
-		
-		public String getPosString() {
-			return "("+pos[1]+"|"+pos[0]+")";
-		}
-		
-		
-		
 }

@@ -1,23 +1,20 @@
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Spiegelt as Spielfeld mit allen Methoden zum lösen da
- * @author timheinsberg
+ * @author Tim Heinsber
  *
  */
 public class Sodoku {
 	private Feld[][] spielfeld;
 	
-	private Linie horizontal[],vertikal[]; //Linien sind von oben nach unten und von rechts nach links durchnummerriert (siehe Zeichung aufteilung.jpeg)
-	private Block bloecke[];				//Blöcke sind von Links nach recht und oben nach unten durch nummerriert (siehe Zeichung aufteilung.jpeg )
-	private List<Vormerkung> vormerkungen;
+	private Linie horizontal[],vertikal[]; 	// Linien sind von oben nach unten und von rechts nach links durchnummerriert (siehe Zeichung aufteilung.jpeg)
+	private Block bloecke[];				// Blöcke sind von Links nach recht und oben nach unten durch nummerriert (siehe Zeichung aufteilung.jpeg )
 	Sodoku(Feld[][] pSpielfeld){
 		horizontal = new Linie[9];
 		vertikal = new Linie[9];
 		bloecke = new Block[9];
 		initialisieren(pSpielfeld);
-		vormerkungen = new ArrayList<Vormerkung>();
 	}
 	
 	private void initialisieren(Feld[][] spielfeld) {
@@ -46,29 +43,11 @@ public class Sodoku {
 					bloecke[i] = new Block(block);
 				}
 	}
-//	/**
-//	 * loest das Sodoku
-//	 * @retu
-//	 */
-//	public void loesen() {
-//		boolean veraenderung = false; // speichert ab ob sich auf dem spielfeld etwas veraendert hat
-//		for(int i = 0; i<1000; i++){
-//			veraenderung = false;
-//			if(aktualisieren()) veraenderung = true;
-//			if(linienUeberpruefung()) veraenderung = true;
-//			if(aktualisieren()) veraenderung = true;
-//			if(zweierKette()) veraenderung = true;
-//			if(veraenderung == false)
-//				//Feld bei dem am wenigsten zahlen moeglich sind eine Zahl raten 
-//				break;
-//		}
-//		
-//	}
 	
 	/**
-	 * loest das Sodoku
+	 * löst das Sodoku
 	 * gibt die Methode false wieder heißt dies das eine Zahl falsch geraten wurde
-	 * @return true wenn das sodoku geloest wurd und false wenn ein Fehler Sodoku vorliegt
+	 * @return true wenn das sodoku gelöst wurd und false wenn ein Fehler Sodoku vorliegt
 	 */
 	public boolean loesen() {
 		boolean veraenderung = false; // speichert ab ob sich auf dem spielfeld etwas veraendert hat
@@ -86,8 +65,8 @@ public class Sodoku {
 		}
 	}
 	/**
-	 * speichert das alte spielfeld ab und raet bei einem Feld bei dem die wenigsten Zahlen moeglich sind eine Zahl und loest das Sodoku mit dem
-	 * geratenen Feld weiter, sollte das Sodoku so Falsch sein kehrt die Methode zu dem alten spielFeld zurück und wählt die nächste Zahl bei dem Feld
+	 * Speichert das alte Spielfeld ab und rät bei dem Feld bei dem die wenigsten Zahlen möglich sind eine Zahl und loest das Sodoku mit dem
+	 * geratenen Feld weiter, sollte das Sodoku nach dem raten Falsch sein kehrt die Methode zu dem alten spielFeld zurück und wählt die nächste Zahl bei dem Feld
 	 * ist das Sodoku bei der letzten Zahl immernoch Falsch gibt die Methode False zurück, dies heist das eine geratene Zahl davor falsch war
 	 * @return true wenn das Sodoku geloest wurde sonst false
 	 */
@@ -135,7 +114,11 @@ public class Sodoku {
 		}
 		
 	}
-	
+	/**
+	 * 
+	 * @param zu kopierendes Array
+	 * @return Kopie des angegebenen Arrays
+	 */
 	private Feld[][] copy(Feld[][] p){
 		Feld outPut[][] = new Feld[p.length][];
 		
@@ -151,7 +134,7 @@ public class Sodoku {
 	
 	/**
 	 * 
-	 * @return true wenn das Sodoku noch den Regeln entsricht, sonnst false
+	 * @return true wenn das Sodoku noch den Regeln entspricht, sonnst false
 	 */
 	private boolean richtig() {
 		for(int i = 0; i<9; i++) {
@@ -178,8 +161,8 @@ public class Sodoku {
 	}
 	
 	/**
-	 * arbeitet nach dem Prizipen in diesem Video : https://www.youtube.com/watch?v=QTlmYXAMgLE
-	 * verwendet die loesungs ansaetze der xWing und der scyscraper Methoden
+	 * Arbeitet nach dem Methoden in diesem Video : https://www.youtube.com/watch?v=QTlmYXAMgLE
+	 * verwendet die lösungs ansätze der xWing und der Scyscraper Methoden
 	 * @return true wenn der aufruf etwas bei den Feldern des Feldes veraendert hat sonst false
 	 */
 	public boolean linienUeberpruefung() {
@@ -246,20 +229,19 @@ public class Sodoku {
 	}
 	
 	/**
-	 * ueberpruft ob die Felder aus a zusammen mit den FEldern aus b einen X Wing bilden, 
-	 * wenn ja schliest die Methode daruas rueckschluesse und gibt true zurueck.
-	 * sollte kein xWing vorliegen gibt die Methode False zurück.
+	 * Überpruft ob die Felder aus a zusammen mit den Feldern aus b einen X Wing bilden, 
+	 * wenn ja schliest die Methode daraus die entsprechenden rückschluesse
 	 * @return true wenn der aufruf etwas bei den Feldern des Blocks veraendert hat sonst false
 	 */
 	private boolean xWing(Feld a[], Feld b[], int zahl) {
 		boolean outPut = false;
 		if(a[0].getX() == b[0].getX() && a[1].getX() == b[1].getX()) {//Xwing gefunden --> auf allen beiden vetikalen linien ( a[0] und a[1]) kann zahl geloescht werden
-			if(vertikal[a[0].getX()].ausschliesenAusser(zahl, new Feld[] {a[0],b[0]})) outPut = true;
-			if(vertikal[a[1].getX()].ausschliesenAusser(zahl, new Feld[] {a[1],b[1]})) outPut = true;
+			if(vertikal[a[0].getX()].ausschliessenAusser(zahl, new Feld[] {a[0],b[0]})) outPut = true;
+			if(vertikal[a[1].getX()].ausschliessenAusser(zahl, new Feld[] {a[1],b[1]})) outPut = true;
 			if(aktualisieren()) outPut = true;
 		}else if(a[0].getY() == b[0].getY() && a[1].getY() == b[1].getY()) {//Xwing gefunden --> auf allen beiden horizontalen linien ( a[0] und a[1])kann zahl geloescht werden
-			if(horizontal[a[0].getY()].ausschliesenAusser(zahl, new Feld[] {a[0],b[0]})) outPut = true;
-			if(horizontal[a[1].getY()].ausschliesenAusser(zahl, new Feld[] {a[1],b[1]})) outPut = true;
+			if(horizontal[a[0].getY()].ausschliessenAusser(zahl, new Feld[] {a[0],b[0]})) outPut = true;
+			if(horizontal[a[1].getY()].ausschliessenAusser(zahl, new Feld[] {a[1],b[1]})) outPut = true;
 			if(aktualisieren()) outPut = true;
 		}
 		return outPut;
@@ -268,7 +250,7 @@ public class Sodoku {
 	/**
 	 * überprüft das Spiel feld nach der 2-er Kette 
 	 * erklärung: https://www.youtube.com/watch?v=QTlmYXAMgLE
-	 * @return true wenn der aufruf etwas bei den Feldern des Blocks veraendert hat sonst false
+	 * @return true wenn der aufruf etwas bei den Feldern des Blocks verändert hat sonst false
 	 */
 	private boolean zweierKette() {
 		boolean outPut = false;
@@ -290,7 +272,7 @@ public class Sodoku {
 							if(nichtVerbunden != null) {
 								// 2er String gefunden
 								//schlusfolgerung aus 2er String kette ziehen
-								if(spielfeld[nichtVerbunden[0].getY()][nichtVerbunden[1].getX()].ausschliesen(durchZahl)) outPut = true;
+								if(spielfeld[nichtVerbunden[0].getY()][nichtVerbunden[1].getX()].ausschliessen(durchZahl)) outPut = true;
 								if(aktualisieren()) outPut = true;
 							}
 						}
@@ -316,7 +298,7 @@ public class Sodoku {
 								continue;
 							Feld nichtVerbunden[] = verbundenTurbot(durchZahl,felderMoeglichV, felderMoeglichB);
 							if(nichtVerbunden != null) {
-								if(spielfeld[nichtVerbunden[0].getY()][nichtVerbunden[1].getX()].ausschliesen(durchZahl)) outPut = true;
+								if(spielfeld[nichtVerbunden[0].getY()][nichtVerbunden[1].getX()].ausschliessen(durchZahl)) outPut = true;
 								if(aktualisieren()) outPut = true;
 							}
 						}
@@ -329,7 +311,7 @@ public class Sodoku {
 								continue;
 							Feld nichtVerbunden[] = verbundenTurbot(durchZahl,felderMoeglichH, felderMoeglichB);
 							if(nichtVerbunden != null) {
-								if(spielfeld[nichtVerbunden[1].getY()][nichtVerbunden[0].getX()].ausschliesen(durchZahl)) outPut = true;
+								if(spielfeld[nichtVerbunden[1].getY()][nichtVerbunden[0].getX()].ausschliessen(durchZahl)) outPut = true;
 								if(aktualisieren()) outPut = true;
 							}
 						}
@@ -340,24 +322,18 @@ public class Sodoku {
 		return outPut;
 	}
 	/**
-	 * hilfsmethode für zweier Kette
+	 * Hilfsmethode für zweier Kette
 	 * @param a
 	 * @param b
-	 * @return wenn alle 4 Felder unterschiedlich sind und eine Verbindung(gleiche Block bei einem Feld aus a mit einem Feld aus b) werden die Felderwieder gegeben welche keine verbindung haben, sonst null
+	 * @return wenn alle 4 Felder unterschiedlich sind und eine Verbindung(gleiche Block bei einem Feld aus a mit einem Feld aus b) werden die Felderwieder gegeben welche keine verbindung haben, sonst null)
 	 */
 	private Feld[] verbunden2String(int zahl,Feld[] a, Feld[] b) {
 		if(a[0] == b[0] || a[0] == b[1] || a[1] == b[0] || a[1] == b[1] || a[0].getBlock() == a[1].getBlock() || b[0].getBlock() == b[1].getBlock() )
 			return null;
 		 for(int iA = 0; iA <2 ; iA ++) {
 			 for(int iB = 0; iB<2;iB++)
-				 if(a[iA].getBlock() == b[iB].getBlock()) {//zweier kette gefunden
-					 Feld[] feldPaar1 = new Feld[2]; //in FeldPaar eins wird das feld aus a gespeichert welches die verbindung zwischen a und b herstellt(gleicher block) und sein gegemstück
-					 Feld[] feldPaar2 = new Feld[2];
-					 feldPaar1[0] = a[iA];
-					 feldPaar2[1] = b[iB];
-					
-					 
-					 Feld outPut[] = new Feld[2];
+				 if(a[iA].getBlock() == b[iB].getBlock()) {		//zweier kette gefunden
+					Feld outPut[] = new Feld[2];
 					 if(iA == 0) 
 						 outPut[0] = a[1];
 					 else
@@ -367,30 +343,13 @@ public class Sodoku {
 						 outPut[1] = b[1];
 					 else
 						 outPut[1] = b[0];
-					 feldPaar1[1] = outPut[1];
-					 feldPaar2[0] = outPut[0];
-					 Vormerkung temp = new Vormerkung(zahl, feldPaar1, feldPaar2);
-					 
-					 if(!vormerkungEnthalten(temp))
-						 vormerkungen.add(temp);
 					 return outPut;
 				 }
 		 }
 		 return null;
 		
 	}
-	/**
-	 * 
-	 * @param b
-	 * @return true wenn b schon in vormerkungene enthalten ist
-	 */
-	private boolean vormerkungEnthalten(Vormerkung b) {
-		for(int i = 0; i<vormerkungen.size();i++) {
-			if(vormerkungen.get(i).isSame(b))
-				return true;
-		}
-		return false;
-	}
+
 	/**
 	 * 
 	 * @param 2 Felder der Linie
@@ -406,10 +365,6 @@ public class Sodoku {
 			for(int iB = 0; iB<2;iB++) {
 				if(vertikaleLinie) {
 					if(a[iL].getY() == b[iB].getY()) {
-						Feld[] feldPaar1 = new Feld[2]; //in feldPaar1[0] wird das Feld aus der Linie abgespeichert welche die selbe y koordinate hat wie ein Feld aus einem Block
-						Feld[] feldPaar2 = new Feld[2];
-						feldPaar1[0] = a[iL];
-						feldPaar2[1] = b[iB];
 						if(iL == 0)
 							outPut[0] = a[1];
 						else
@@ -422,21 +377,12 @@ public class Sodoku {
 						if(outPut[0].getY() == outPut[1].getY())
 							return null;
 						
-						feldPaar1[1] = outPut[1];
-						feldPaar2[0] = outPut[0];
-						Vormerkung temp = new Vormerkung(zahl, feldPaar1, feldPaar2);
-						if(!vormerkungEnthalten(temp))
-							vormerkungen.add(temp);
 						return outPut;
 									
 					}
 					
 				}else {
 					if(a[iL].getX() == b[iB].getX()) {
-						Feld[] feldPaar1 = new Feld[2]; //in feldPaar1[0] wird das Feld aus der Linie abgespeichert welche die selbe y koordinate hat wie ein Feld aus einem Block
-						Feld[] feldPaar2 = new Feld[2];
-						feldPaar1[0] = a[iL];
-						feldPaar2[1] = b[iB];
 						if(iL == 0)
 							outPut[0] = a[1];
 						else
@@ -448,11 +394,6 @@ public class Sodoku {
 						//Verhindern das die beiden outPut punkte verbunden sind
 						if(outPut[0].getX() == outPut[1].getX())
 							return null;
-						feldPaar1[1] = outPut[1];
-						feldPaar2[0] = outPut[0];
-						Vormerkung temp = new Vormerkung(zahl, feldPaar1, feldPaar2);
-						if(!vormerkungEnthalten(temp))
-							vormerkungen.add(temp);
 						return outPut;
 									
 					}
@@ -462,31 +403,31 @@ public class Sodoku {
 		return null;
 	}
 	/**
-	 * darf nur aufgeruden werden wen vorher geprueft wurde ob alle 4 Felder eine Zahl gemeinsam moeglich haben
+	 * Darf nur aufgeruden werden wenn vorher geprüft wurde ob alle 4 Felder eine Zahl gemeinsam möglich haben
 	 * @param a
 	 * @param b
-	 * @return wenn die Arrays a und b skyscraper geignet sind gibt die methode an den 1. beiden stellen die 2 Basis Felder aus und an den letzen beiden die Dach Felder. sollten die Arrays nich skyscraper faehig sein gibt die Methode null zurueck
+	 * @return wenn die Arrays a und b Skyscraper geignet sind gibt die methode an den 1. beiden stellen die 2 Basis Felder aus und an den letzen beiden die Dach Felder. sollten die Arrays nich Skyscraper fähig sein gibt die Methode null zurück
 	 */
 	private Feld[] sykscraperMoeglich(Feld a[],Feld b[]) {
 		if(a[0].getBlock() == a[1].getBlock() || b[0].getBlock() == b[1].getBlock())
 			return null;
 		Feld[] outPut = new Feld[4];
 		//suchen ob Basis vorhanden
-		if(a[0].getX() == a[1].getX()){//Vertikale Linien
-			if(a[0].getY() == b[0].getY() && a[0].getBlock() != b[0].getBlock())//Basis gefunden
+		if(a[0].getX() == a[1].getX()){		//Vertikale Linien
+			if(a[0].getY() == b[0].getY() && a[0].getBlock() != b[0].getBlock())		//Basis gefunden
 			{
 				outPut[0] = a[0];
 				outPut[1] = b[0];
 				outPut[2] = a[1];
 				outPut[3] = b[1];
-			}else if(a[1].getY() == b[1].getY()&& a[1].getBlock() != b[0].getBlock())//Basis gefunden
+			}else if(a[1].getY() == b[1].getY()&& a[1].getBlock() != b[0].getBlock())		//Basis gefunden
 			{
 				outPut[0] = a[1];
 				outPut[1] = b[1];
 				outPut[2] = a[0];
 				outPut[3] = b[0];
 			}else
-				return null;//kann man hier sicher sagen da die moeglichen Felder sortiert sind --> a[0].Y == b[1].y  heist das a[1] und b[0] nicht auf einer seite von a[0] und b[1]sind
+				return null;		//kann man hier sicher sagen da die moeglichen Felder sortiert sind --> a[0].Y == b[1].y  heist das a[1] und b[0] nicht auf einer seite von a[0] und b[1]sind
 			if(outPut[2].getY() != outPut[3].getY() && outPut[2].getBlock() != outPut[3].getBlock()) {
 				//überprüfen ob outPut[2] und outPut[3] in einer Blockreihe liegen
 				if(	(outPut[2].getBlock() <= 2 && outPut[3].getBlock() <= 2) || 
@@ -495,21 +436,21 @@ public class Sodoku {
 				return outPut;
 			}
 			return null;
-		}else {//horizontale Linie
-			if(a[0].getX() == b[0].getX() && a[0].getBlock() != b[0].getBlock() )//Basis gefunden
+		}else {		//horizontale Linie
+			if(a[0].getX() == b[0].getX() && a[0].getBlock() != b[0].getBlock() )		//Basis gefunden
 			{
 				outPut[0] = a[0];
 				outPut[1] = b[0];
 				outPut[2] = a[1];
 				outPut[3] = b[1];
-			}else if(a[1].getX() == b[1].getX() && a[1].getBlock() != b[0].getBlock())//Basis gefunden
+			}else if(a[1].getX() == b[1].getX() && a[1].getBlock() != b[0].getBlock())		//Basis gefunden
 			{
 				outPut[0] = a[1];
 				outPut[1] = b[1];
 				outPut[2] = a[0];
 				outPut[3] = b[0];
 			}else
-				return null;//kann man hier sicher sagen da die moeglichen Felder sortiert sind --> a[0].Y == b[1].y  heist das a[1] und b[0] nicht auf einer seite von a[0] und b[1]sind
+				return null;		//kann man hier sicher sagen da die moeglichen Felder sortiert sind --> a[0].Y == b[1].y  heist das a[1] und b[0] nicht auf einer seite von a[0] und b[1]sind
 			if(outPut[2].getX() != outPut[3].getX() && outPut[2].getBlock() != outPut[3].getBlock() && inBlockSpalte(outPut[2].getBlock(),outPut[3].getBlock())) {
 				return outPut;
 			}
@@ -531,9 +472,9 @@ public class Sodoku {
 	}
 	
 	/**
-	 * Ueberprueft alle Blöcke ob es Zahlen gibt für die alle moegöichen Felder in einer Reihe/Spalte liegen
+	 * Überprueft alle Blöcke ob es Zahlen gibt für die alle möglichen Felder in einer Reihe/Spalte liegen
 	 * ist dies der Fall wird diese Zahl aus allen anderen Feldern der Reihe/Spalte gelöscht.
-	 * @return true wenn der aufruf etwas bei den Feldern der neuner Reihe veraendert hat sonst false
+	 * @return true wenn der Aufruf etwas bei den Feldern der neuner Reihe verändert hat sonst false
 	 */
 	private boolean blockFindLocked() {
 		boolean outPut = false;
@@ -550,10 +491,10 @@ public class Sodoku {
 							y= -1;
 					}
 					if(x != -1) {//Felder befinden sich in einer spalte
-						if(vertikal[x].ausschliesenAusser(i+1, moeglich[i]))
+						if(vertikal[x].ausschliessenAusser(i+1, moeglich[i]))
 							outPut = true;
 					}else if(y != -1) {//Felder befinden sich in einer Reihe
-						if(horizontal[y].ausschliesenAusser(i+1, moeglich[i]))
+						if(horizontal[y].ausschliessenAusser(i+1, moeglich[i]))
 							outPut = true;
 					}
 				}
@@ -561,28 +502,7 @@ public class Sodoku {
 		}
 		return outPut;
 	}
-	
-	
-	public void printLinesAndBlocks() {
-		System.out.println("\n\nHorizontale Linien:");
-		for(int i = 0; i<9;i++) {
-			System.out.print(i+" :  ");
-			horizontal[i].print();
-			System.out.println();
-		}
-		System.out.println("\n\nVertikale Linien:");
-		for(int i = 0; i<9;i++) {
-			System.out.print(i+" :  ");
-			vertikal[i].print();
-			System.out.println();
-		}
-		System.out.println("\n\nBlöcke:");
-		for(int i = 0; i<9;i++) {
-			System.out.println("\n"+i+" :  ");
-			bloecke[i].print();
-			System.out.println();
-		}
-	}
+
 	public void print() {
 		for(int y = 0; y<9; y++) {
 			for(int x = 0; x<9;x++) {
@@ -595,6 +515,7 @@ public class Sodoku {
 			System.out.println();
 		}
 	}
+	
 	/**
 	 * aktualisiert alle Linien und Blöcke
 	 * @return true wenn der aufruf etwas bei den Feldern veraendert hat sonst false
@@ -611,15 +532,6 @@ public class Sodoku {
 			if(bloecke[i].aktualisieren())
 				outPut = true;
 		}
-		//Vormerkungen nicht aktualisieren
-//		if(!vormerkungen.isEmpty()) {
-//			for(int i = 0; i< vormerkungen.size();i++) {
-//			if(vormerkungen.get(i).aktualisieren()) {
-//				vormerkungen.remove(i);
-//			}
-//			}
-//		}
-		
 		if(blockFindLocked())
 			outPut = true;
 		return outPut;
@@ -648,6 +560,5 @@ public class Sodoku {
 		
 		return outPut;
 	}
-	//methoden zum weiteren loesen des Sodokus
 }
 

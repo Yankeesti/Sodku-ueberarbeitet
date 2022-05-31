@@ -58,7 +58,7 @@ public class Block extends neunerFeld{
 		boolean outPut = false;
 		for(Feld i: felder)
 			if(i.getX() == x)
-				if(i.ausschliesen((byte)zahl))
+				if(i.ausschliessen((byte)zahl))
 						outPut = true;
 		return outPut;
 	}
@@ -73,7 +73,7 @@ public class Block extends neunerFeld{
 		boolean outPut = false;
 		for(Feld i: felder)
 			if(i.getY() == y)
-				if(i.ausschliesen((byte)zahl))
+				if(i.ausschliessen((byte)zahl))
 					outPut = true;
 		return outPut;
 	}
