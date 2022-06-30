@@ -1,17 +1,18 @@
+package Background;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @author timheinsberg
- *	Ueber Klasse für die Klassen Line und Block
+ * @author Tim Heinsberg
+ *	Überklasse für die Klassen Line und Block
  *	enthält immer neun Felder
  */
 public class neunerFeld {
 	//Attribute
 		protected Feld felder[];
-		protected boolean enthalten[];//wenn Feld true --> Zahl(index+1) ist in dem neuner Feld enthalten 
+		protected boolean enthalten[];			// Wenn die Position der Zahl in dem Array (Zahl-1) true ist ist die Zahl in dem Neuner Feld enthalten
 		protected byte anzahlMoegliche[];
-		protected List<Feld>[] moeglich; //speichert ab welche Felder für die Zahl noch moeglich sind, Zahl wird angegeben durch position im array
+		protected List<Feld>[] moeglich; 		// Speichert ab welche Felder für die Zahl noch möglich sind, Zahl wird angegeben durch position im array
 	//Konstuktor
 		/**
 		 * @param pFelder parm muss genau 9 Felder enthalten
@@ -36,9 +37,10 @@ public class neunerFeld {
 			
 		}
 	
-	//Methoden
+	//Methoden zum Lösen
+		
 		/**
-		 * Aktualisiert das neuner Feld und überprüft ob durch ausschluss verfahren Felder identifiziert
+		 * Aktualisiert das Neuner Feld und überprüft ob durch ausschluss verfahren Felder identifiziert
 		 * werden können
 		 * @return true wenn der aufruf etwas bei den Feldern der neuner Reihe veraendert hat sonst false
 		 */
@@ -63,48 +65,9 @@ public class neunerFeld {
 			aktMoeglicheList();
 			return outPut;
 		}
-		/**
-		 * Zaehl wie viele Felder für jede Zahl moeglich sind und speichert das Ergebniss in anzahl moegliche ab
-		 */
-		private void zaehleMoegliche() {
-			for(int i = 0; i<9 ; i++) {
-				anzahlMoegliche[i] = 0;
-			}
-			for(Feld p:felder) {
-				byte pMoegliche[] = p.getMoegliche();
-				//Counten wieviele Felder es gibt für die die Zahlen 1-9 möglich sind
-				for(int i = 0; i<pMoegliche.length;i++) {
-					anzahlMoegliche[pMoegliche[i]-1] ++;
-				}
-			}
-		}
-		/**
-		 * überprüft ob es eine Ziffer gibt für die nur ein Feld in Frage kommt
-		 * wenn ja wird dieses Feld mit der Ziffer besetzt
-		 * @return true wenn der aufruf etwas bei den Feldern der neuner Reihe veraendert hat sonst false
-		 */
-		private boolean moeglicheUeberpruefen() {
-			boolean outPut = false;
-			for(int i = 0; i<anzahlMoegliche.length ; i++) {
-				if(anzahlMoegliche[i] == 1) {//Zahlgefunden für die nur ein Feld in frage kommt
-					//Feld raussuchen
-					for(Feld p: felder) {
-						if(p.istMoeglich(i+1)) {
-							if(p.setZahl(i+1)) outPut = true;
-						}
-					}
-				}
-			}
-			return outPut;
-		}
-		
-		public void print() {
-			for(Feld p : felder)
-				p.print();
-		}
 		
 		/**
-		 * wenn ein Zwilling in dem neuner Feld vorhanden ist wird dieser ausgegeben
+		 * wenn ein Zwilling in dem neuner Feld vorhanden ist werden die möglichen Felder der Neuner Kombination demensprechend verändert
 		 * @return true wenn der aufruf etwas bei den Feldern der neuner Reihe veraendert hat sonst false
 		 */
 		protected boolean zwilling() {
@@ -116,9 +79,9 @@ public class neunerFeld {
 				for(byte b = (byte)(a+1); b < zweimal.length; b++) {
 					byte aktPaar[] = {zweimal[a],zweimal[b]};
 					for(int feldA = 0; feldA <9; feldA++) {
-						if(felder[feldA].istMoeglich(aktPaar))// true --> erstes mögliches Paar für zwilling gefunden
+						if(felder[feldA].istMoeglich(aktPaar))							// true --> erstes mögliches Paar für zwilling gefunden
 						for(int feldB = feldA+1; feldB <9; feldB++) {
-							if(felder[feldB].istMoeglich(aktPaar)){// true --> zwilings Paar gefunden
+							if(felder[feldB].istMoeglich(aktPaar)){						// true --> zwilings Paar gefunden
 								if(felder[feldA].setMoegliche(aktPaar)||felder[feldB].setMoegliche(aktPaar))
 									outPut = true;
 							}
@@ -130,7 +93,7 @@ public class neunerFeld {
 			for(int i = 0; i<9; i++) {
 				if(felder[i].getZahlenMoeglich() == 2) 
 					for(int b = i+1;b<9;b++) {
-						if(felder[i].identisch(felder[b]))//zwilling gefunden
+						if(felder[i].identisch(felder[b]))								//zwilling gefunden
 							if(ausschliessenAusser(felder[i].getMoegliche(), new Feld[] {felder[i],felder[b]}))
 								outPut = true;
 					}
@@ -175,7 +138,50 @@ public class neunerFeld {
 		}
 		
 		/**
-		 * schliest die zahlen in auszuschliessen aus allen Feldern der neuner Kombination aus
+		 * überprüft ob es eine Ziffer gibt für die nur ein Feld in Frage kommt
+		 * wenn ja wird dieses Feld mit der Ziffer besetzt
+		 * @return true wenn der aufruf etwas bei den Feldern der neuner Reihe veraendert hat sonst false
+		 */
+		private boolean moeglicheUeberpruefen() {
+			boolean outPut = false;
+			for(int i = 0; i<anzahlMoegliche.length ; i++) {
+			if(anzahlMoegliche[i] == 1) {						//Zahlgefunden für die nur ein Feld in frage kommt
+					//Feld raussuchen
+					for(Feld p: felder) {
+						if(p.istMoeglich(i+1)) {
+							if(p.setZahl(i+1)) outPut = true;
+						}
+					}
+				}
+			}
+			return outPut;
+		}
+		
+	// Hilfs Methoden
+		
+		/**
+		 * Zählt wie viele Felder für jede Zahl möglich sind und speichert das Ergebniss in anzahl moegliche ab
+		 */
+		private void zaehleMoegliche() {
+			for(int i = 0; i<9 ; i++) {
+				anzahlMoegliche[i] = 0;
+			}
+			for(Feld p:felder) {
+				byte pMoegliche[] = p.getMoegliche();
+				//Counten wieviele Felder es gibt für die die Zahlen 1-9 möglich sind
+				for(int i = 0; i<pMoegliche.length;i++) {
+					anzahlMoegliche[pMoegliche[i]-1] ++;
+				}
+			}
+		}
+		
+		public void print() {
+			for(Feld p : felder)
+				p.print();
+		}
+		
+		/**
+		 * Schliest die Zahlen in auszuschliessen aus allen Feldern der neuner Kombination aus
 		 * und lässt die Felder aus auslassen aus.
 		 * @param auszuschliessen
 		 * @param auslassen
@@ -220,6 +226,7 @@ public class neunerFeld {
 				}
 			return outPut;
 		}
+		
 		/**
 		 *aktualisiert die Liste welche alle möglichen Felder für jede Zahl enthält
 		 */
